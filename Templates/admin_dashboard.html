@@ -1,0 +1,815 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — LifeFlow{% endblock %}
+{% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+<style>
+/* ── demandChart canvas height cap ── */
+#demandChart { max-height: 260px !important; }
+
+/* ── Page section — always visible, scroll layout ── */
+.page-section          { display: none; padding: 1.25rem 0 2rem; }
+.page-section.active   { display: block; }
+
+/* ── Analytics entrance animations ── */
+@keyframes chartCardIn {
+    from { opacity: 0; transform: translateY(36px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+@keyframes analyticsHeaderIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0);     }
+}
+.analytics-animate > .card,
+.analytics-animate > div > .card { opacity: 0; animation: chartCardIn .52s cubic-bezier(.22,.68,0,1.2) forwards; }
+.analytics-animate > .card:nth-child(1)       { animation-delay: .04s; }
+.analytics-animate > div > .card:nth-child(1) { animation-delay: .20s; }
+.analytics-animate > div > .card:nth-child(2) { animation-delay: .34s; }
+.analytics-animate .card-header               { animation: analyticsHeaderIn .38s ease .12s both; }
+
+/* ── Push notification toast (Live Popups) ── */
+@keyframes toastSlideIn  { from { transform: translateX(calc(100% + 24px)); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(calc(100% + 24px)); opacity: 0; } }
+@keyframes pulseRing     { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(2.2); opacity: 0; } }
+
+.push-toast-wrap { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.push-toast { background: #1A1A28; border-radius: 14px; width: 320px; pointer-events: all; box-shadow: 0 8px 40px rgba(0,0,0,.6); overflow: hidden; animation: toastSlideIn .4s cubic-bezier(.22,.68,0,1.2) both; }
+.push-toast.out { animation: toastSlideOut .35s ease-in forwards; }
+
+.push-toast__bar { height: 4px; width: 100%; }
+.push-toast__bar--critical { background: linear-gradient(90deg, #E8192F, #ff6b6b); }
+.push-toast__bar--urgent   { background: linear-gradient(90deg, #F0970A, #ffd060); }
+.push-toast__bar--normal   { background: linear-gradient(90deg, #1BB86A, #4ade80); } 
+
+.push-toast__inner  { padding: 14px 16px 16px; position: relative; }
+.push-toast__head   { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.push-toast__icon-wrap { position: relative; width: 38px; height: 38px; flex-shrink: 0; }
+.push-toast__icon   { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; position: relative; z-index: 1; }
+
+.push-toast__icon--critical { background: rgba(232,25,47,.2); border: 1px solid rgba(232,25,47,.4); }
+.push-toast__icon--urgent   { background: rgba(240,151,10,.2); border: 1px solid rgba(240,151,10,.4); }
+.push-toast__icon--normal   { background: rgba(27,184,106,.2); border: 1px solid rgba(27,184,106,.4); } 
+
+.push-toast__ring   { position: absolute; inset: 0; border-radius: 50%; animation: pulseRing 1.4s ease-out infinite; }
+.push-toast__ring--critical { border: 2px solid rgba(232,25,47,.6); }
+.push-toast__ring--urgent   { border: 2px solid rgba(240,151,10,.6); }
+.push-toast__ring--normal   { border: 2px solid rgba(27,184,106,.6); }
+
+.push-toast__label  { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.push-toast__label--critical { color: #E8192F; }
+.push-toast__label--urgent   { color: #F0970A; }
+.push-toast__label--normal   { color: #1BB86A; }
+
+.push-toast__title  { font-size: .95rem; font-weight: 800; color: #F0F0F4; line-height: 1.3; }
+.push-toast__meta   { font-size: .78rem; color: #8E8EA0; margin-top: 5px; line-height: 1.5; }
+.push-toast__meta b { color: #C8C8D4; }
+.push-toast__meta .blood-chip { display: inline-block; background: rgba(192,21,42,.2); border: 1px solid rgba(192,21,42,.4); color: #E8192F; border-radius: 6px; padding: 0 7px; font-size: .78rem; font-weight: 700; }
+.push-toast__actions  { display: flex; gap: 8px; margin-top: 12px; }
+.push-toast__btn      { flex: 1; border: none; border-radius: 8px; padding: 7px 10px; font-size: .75rem; font-weight: 700; cursor: pointer; transition: all .18s; }
+.push-toast__btn--view    { background: rgba(192,21,42,.15); border: 1px solid rgba(192,21,42,.3); color: #E8192F; }
+.push-toast__btn--view:hover { background: rgba(192,21,42,.28); }
+.push-toast__btn--dismiss    { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #8E8EA0; }
+.push-toast__btn--dismiss:hover { background: rgba(255,255,255,.1); color: #C8C8D4; }
+.push-toast__close    { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #56566A; cursor: pointer; font-size: .9rem; line-height: 1; padding: 2px 5px; }
+.push-toast__close:hover { color: #8E8EA0; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ══════════════ PROFILE ══════════════ #}
+<div class="page-section" id="page-profile">
+
+  <div class="profile-card">
+    <div class="profile-card__bg">
+      <div class="profile-card__drops">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="profile-card__body">
+
+      <div class="profile-header">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar-pulse"></div>
+          <div class="profile-avatar">{{ name[0]|upper }}</div>
+          <div class="profile-avatar-status"></div>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">{{ name }}</h1>
+          <div class="profile-role-badge">🛡 Administrator</div>
+          <div class="profile-email">✉ {{ admin_email or 'admin@lifeflow.in' }}</div>
+        </div>
+      </div>
+
+      <div class="profile-stats-row">
+        <div class="pstat"><div class="pstat__icon">📋</div><div class="pstat__val" id="stat-total-requests">{{ total_requests }}</div><div class="pstat__lbl">Total Requests</div></div>
+        <div class="pstat"><div class="pstat__icon">✅</div><div class="pstat__val" id="stat-approved" style="color:var(--success);">{{ total_approved }}</div><div class="pstat__lbl">Approved</div></div>
+        <div class="pstat"><div class="pstat__icon">⏳</div><div class="pstat__val" id="stat-pending" style="color:#F0970A;">{{ total_pending }}</div><div class="pstat__lbl">Pending</div></div>
+        <div class="pstat"><div class="pstat__icon">🩸</div><div class="pstat__val" id="stat-stock">{{ "{:,}".format(total_stock|int) }}</div><div class="pstat__lbl">ml In Stock</div></div>
+      </div>
+
+      <div class="profile-meta">
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">🏥</span><span class="profile-meta-chip__label">Hospitals</span><span class="profile-meta-chip__val">{{ hospitals|length }}</span></div>
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">🩸</span><span class="profile-meta-chip__label">Blood Groups</span><span class="profile-meta-chip__val">{{ inventory|length }}</span></div>
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">🛡</span><span class="profile-meta-chip__label">Role</span><span class="profile-meta-chip__val">Administrator</span></div>
+      </div>
+
+      <div class="profile-divider"></div>
+
+      <div class="profile-actions">
+        <button class="profile-action-btn" onclick="adminTab('analytics')"><span class="pa-icon">📊</span>Analytics</button>
+        <button class="profile-action-btn" onclick="adminTab('inventory')"><span class="pa-icon">🩸</span>Inventory</button>
+        <button class="profile-action-btn" onclick="adminTab('requests')"><span class="pa-icon">📋</span>Requests</button>
+        <button class="profile-action-btn" onclick="adminTab('users')"><span class="pa-icon">👥</span>Users</button>
+        <button class="profile-action-btn" onclick="adminTab('mldemand')"><span class="pa-icon">🤖</span>ML Forecast</button>
+        <button class="profile-action-btn" onclick="adminTab('activity')"><span class="pa-icon">📝</span>Activity</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
+{# ══════════════ ANALYTICS ══════════════ #}
+<div class="page-section" id="page-analytics">
+
+  {# Single analytics card with tab switcher #}
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">📊</div>Analytics Dashboard</div>
+      <div style="display:flex;gap:6px;">
+        <button class="tab-btn active" id="analyticsBtn-requests" onclick="switchAnalyticsTab('requests',this)">Requests</button>
+        <button class="tab-btn" id="analyticsBtn-demand" onclick="switchAnalyticsTab('demand',this)">Demand</button>
+        <button class="tab-btn" id="analyticsBtn-stocks" onclick="switchAnalyticsTab('stocks',this)">Inventory</button>
+      </div>
+    </div>
+    <div class="card-body">
+
+      {# Tab: Requests #}
+      <div id="analyticsPanel-requests" class="tab-panel active">
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.75rem;">Blood request trends over the last 30 days</p>
+        <canvas id="requestsChart" height="100"></canvas>
+      </div>
+
+      {# Tab: Demand by blood group #}
+      <div id="analyticsPanel-demand" class="tab-panel">
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.75rem;">Total demand by blood group (last 30 days)</p>
+        <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+          <div style="width:220px;height:220px;position:relative;flex-shrink:0;">
+            <canvas id="demandChart"></canvas>
+          </div>
+          <div id="demandLegend" style="flex:1;min-width:140px;"></div>
+        </div>
+      </div>
+
+      {# Tab: Current inventory #}
+      <div id="analyticsPanel-stocks" class="tab-panel">
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.75rem;">Current blood stock levels (ml)</p>
+        <canvas id="inventoryChart" height="100"></canvas>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
+{# ══════════════ INVENTORY ══════════════ #}
+<div class="page-section" id="page-inventory">
+  <div class="card" id="anchor-stock-overview">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">🩸</div>Live Blood Inventory</div>
+      <div style="display:flex;gap:8px;">
+        <a href="/download_report" class="btn btn--secondary btn--sm">📄 PDF Report</a>
+        <a href="/export_inventory_excel" class="btn btn--secondary btn--sm">📊 Excel Export</a>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="grid grid--4" style="margin-bottom:1.5rem;">
+        {% for item in inventory %}
+        {% set pct = [item.quantity_ml / 5000 * 100, 100] | min %}
+        <div class="stat-card">
+          <div class="stat-card__bg-icon">🩸</div>
+          <div class="d-flex items-center justify-between mb-2">
+            <div class="blood-badge">{{ item.blood_group }}</div>
+            <span class="text-xs text-muted">{% if item.quantity_ml < 500 %}⚠ Low{% elif item.quantity_ml > 3000 %}✓ Good{% else %}~ OK{% endif %}</span>
+          </div>
+          <div class="stat-card__value">{{ item.quantity_ml }}</div>
+          <div class="stat-card__sub">ml available</div>
+          <div class="progress-bar">
+            <div class="progress-bar__fill {% if item.quantity_ml < 500 %}progress-bar__fill--low{% elif item.quantity_ml > 3000 %}progress-bar__fill--high{% else %}progress-bar__fill--medium{% endif %}" style="width:{{ pct }}%;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="stock-panel">
+        <div class="stock-panel__label">Update Stock</div>
+        <form method="POST" action="/update_stock">
+          <div class="form-inline">
+            <div class="form-group">
+              <label class="form-label">Blood Group</label>
+              <select class="form-select input-sm" name="blood_group" style="width:110px;" required>
+                <option value="" disabled selected>Select</option>
+                {% for item in inventory %}<option value="{{ item.blood_group }}">{{ item.blood_group }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Action</label>
+              <select class="form-select input-sm" name="action" style="width:140px;" required>
+                <option value="add">+ Add Stock</option>
+                <option value="subtract">- Remove Stock</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Volume (ml)</label>
+              <input class="form-input input-sm" type="number" name="volume" placeholder="500" min="1" style="width:130px;" required>
+            </div>
+            <button type="submit" class="btn btn--primary btn--sm">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{# ══════════════ ML DEMAND ══════════════ #}
+<div class="page-section" id="page-mldemand">
+
+  {% if forecast and forecast.predicted_shortage > 0 %}
+  <div class="alert-banner" style="margin-bottom:1.25rem;">
+    <div class="alert-banner__icon">🚨</div>
+    <div>
+      <div class="alert-banner__label">Critical ML Shortage Forecast</div>
+      <p class="alert-banner__text">
+        Blood group <strong>{{ forecast.blood_group }}</strong> — deficit of
+        <strong>{{ "{:,}".format(forecast.predicted_shortage) }} ml</strong> this week.
+        Stock: <strong>{{ forecast.current_stock }} ml</strong> ·
+        Demand: <strong>{{ "{:,}".format(forecast.predicted_demand) }} ml</strong>
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card card--accent">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">🤖</div>ML Demand Forecast — Next 7 Days</div>
+      <span class="badge badge--info">LinearRegression · 30-Day Window</span>
+    </div>
+    <div class="card-body">
+      {% if ml_predictions %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Blood Group</th><th>Current Stock</th><th>Predicted Demand</th><th>Shortage</th><th>Trend</th><th>Risk</th></tr></thead>
+          <tbody>
+            {% for p in ml_predictions %}
+            <tr>
+              <td><span class="blood-badge--sm">{{ p.blood_group }}</span></td>
+              <td class="td--primary">{{ "{:,}".format(p.current_stock) }} ml</td>
+              <td>{{ "{:,}".format(p.predicted_demand) }} ml</td>
+              <td>{% if p.predicted_shortage > 0 %}<strong style="color:var(--error);">↯ {{ "{:,}".format(p.predicted_shortage) }} ml</strong>{% else %}<span style="color:var(--success);">✓ Sufficient</span>{% endif %}</td>
+              <td>{% if p.trend=='rising' %}<span style="color:var(--error);font-weight:600;">↑ Rising</span>{% elif p.trend=='falling' %}<span style="color:var(--success);font-weight:600;">↓ Falling</span>{% else %}<span style="color:var(--text-muted);">→ Stable</span>{% endif %}</td>
+              <td>{% if p.predicted_shortage > 1000 %}<span class="badge badge--rejected">🔴 HIGH</span>{% elif p.predicted_shortage > 0 %}<span class="badge badge--pending">🟡 MEDIUM</span>{% else %}<span class="badge badge--approved">🟢 OK</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">📊</div><div class="empty-state__title">Insufficient Data</div><p class="empty-state__text">Need ≥3 days of request history per blood group.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+
+{# ══════════════ PENDING REQUESTS (mini) ══════════════ #}
+<div class="page-section" id="page-pending-requests">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <div class="card-title-icon">📋</div>Pending Requests
+        {% if requests %}<span style="background:var(--crimson);color:#fff;border-radius:999px;font-size:.65rem;padding:2px 9px;margin-left:8px;font-weight:700;">{{ requests|length }}</span>{% endif %}
+      </div>
+      <button class="btn btn--secondary btn--sm" onclick="adminTab('requests')">View All →</button>
+    </div>
+    <div class="table-wrap">
+      {% if requests %}
+      <table class="table">
+        <thead><tr><th>Requester</th><th>Blood</th><th>Volume</th><th>Priority</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for req in requests[:5] %}
+          <tr>
+            <td class="td--primary">{{ req.requester_name }}</td>
+            <td><span class="blood-badge--sm">{{ req.blood_group }}</span></td>
+            <td>{{ req.quantity_needed_ml }} ml</td>
+            <td>{% if req.priority=='Critical' %}<span class="badge-critical">🔴 Critical</span>{% elif req.priority=='Urgent' %}<span class="badge-urgent">🟡 Urgent</span>{% else %}<span class="badge-normal">Normal</span>{% endif %}</td>
+            <td>
+              <div class="d-inline-flex gap-1">
+                <form method="POST" action="/process_request" style="display:inline;">
+                  <input type="hidden" name="request_id" value="{{ req.request_id }}">
+                  <input type="hidden" name="action" value="approve">
+                  <input type="hidden" name="blood_group" value="{{ req.blood_group }}">
+                  <input type="hidden" name="volume" value="{{ req.quantity_needed_ml }}">
+                  <button class="btn btn--success btn--sm">✓</button>
+                </form>
+                <form method="POST" action="/process_request" style="display:inline;">
+                  <input type="hidden" name="request_id" value="{{ req.request_id }}">
+                  <input type="hidden" name="action" value="reject">
+                  <button class="btn btn--danger btn--sm">✕</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">📭</div><div class="empty-state__title">No pending requests</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# ══════════════ REQUESTS ══════════════ #}
+<div class="page-section" id="page-requests">
+  <div class="card" id="anchor-pending-requests">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">📋</div>Pending Requests</div>
+      <span class="badge badge--pending">{{ requests|length }} Pending</span>
+    </div>
+    <div class="table-wrap">
+      {% if requests %}
+      <table class="table">
+        <thead><tr><th>ID</th><th>Hospital</th><th>Blood</th><th>Volume</th><th>Priority</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for req in requests %}
+          <tr>
+            <td class="td--mono">#{{ req.request_id }}</td>
+            <td class="td--primary">🏥 {{ req.requester_name }}</td>
+            <td><span class="blood-badge--sm">{{ req.blood_group }}</span></td>
+            <td>{{ req.quantity_needed_ml }} ml</td>
+            <td>{% if req.priority=='Critical' %}<span class="badge-critical">🔴 Critical</span>{% elif req.priority=='Urgent' %}<span class="badge-urgent">🟡 Urgent</span>{% else %}<span class="badge-normal">Normal</span>{% endif %}</td>
+            <td class="td--sm">{{ req.request_date.strftime('%d %b %Y, %H:%M') if req.request_date else '—' }}</td>
+            <td>
+              <div class="d-inline-flex gap-1">
+                <form method="POST" action="/process_request" style="display:inline;">
+                  <input type="hidden" name="request_id" value="{{ req.request_id }}">
+                  <input type="hidden" name="action" value="approve">
+                  <input type="hidden" name="blood_group" value="{{ req.blood_group }}">
+                  <input type="hidden" name="volume" value="{{ req.quantity_needed_ml }}">
+                  <button class="btn btn--success btn--sm">✓</button>
+                </form>
+                <form method="POST" action="/process_request" style="display:inline;">
+                  <input type="hidden" name="request_id" value="{{ req.request_id }}">
+                  <input type="hidden" name="action" value="reject">
+                  <button class="btn btn--danger btn--sm">✕</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">📭</div><div class="empty-state__title">No pending requests</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+{# ══════════════ EXPIRY ══════════════ #}
+<div class="page-section" id="page-expiry">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">⏰</div>Blood Batch Expiry Tracking</div>
+      <span class="badge badge--info">35-day shelf life</span>
+    </div>
+    <div class="table-wrap">
+      {% if batches %}
+      <table class="table">
+        <thead><tr><th>Blood Group</th><th>Volume (ml)</th><th>Collected</th><th>Expiry Date</th><th>Days Left</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for b in batches %}
+          {% set days_left = (b.expiry_date - today).days if b.expiry_date else 999 %}
+          <tr>
+            <td><span class="blood-badge--sm">{{ b.blood_group }}</span></td>
+            <td>{{ b.quantity_ml }} ml</td>
+            <td class="td--sm">{{ b.collected_date.strftime('%d %b %Y') if b.collected_date else '—' }}</td>
+            <td class="td--sm">{{ b.expiry_date.strftime('%d %b %Y') if b.expiry_date else '—' }}</td>
+            <td>{% if days_left<=3 %}<span class="expiry-critical">{{ days_left }}d ⚠</span>{% elif days_left<=7 %}<span class="expiry-warning">{{ days_left }}d</span>{% else %}<span style="color:var(--success);">{{ days_left }}d</span>{% endif %}</td>
+            <td>{% if days_left<=3 %}<span class="badge badge--rejected">Critical</span>{% elif days_left<=7 %}<span class="badge badge--pending">Expiring Soon</span>{% else %}<span class="badge badge--approved">Fresh</span>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">📦</div><div class="empty-state__title">No batch records yet</div><p class="empty-state__text">Batches are created automatically when you add stock.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+{# ══════════════ USERS ══════════════ #}
+<div class="page-section" id="page-users">
+  <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">🏥</div>Registered Hospitals</div>
+      <span class="badge badge--neutral">{{ hospitals|length }} total</span>
+    </div>
+    <div class="table-wrap">
+      {% if hospitals %}
+      <table class="table">
+        <thead><tr><th>Hospital Name</th><th>Email</th><th>Contact</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for h in hospitals %}
+          <tr>
+            <td class="td--primary">🏥 {{ h.hospital_name }}</td>
+            <td>{{ h.email }}</td>
+            <td>{{ h.contact_number or '—' }}</td>
+            <td>
+              <form method="POST" action="/admin_delete_user" style="display:inline;" onsubmit="return confirm('Delete {{ h.hospital_name }}? This cannot be undone.')">
+                <input type="hidden" name="user_id" value="{{ h.user_id }}">
+                <button class="btn btn--danger btn--sm" style="font-size:.72rem;padding:3px 10px;">🗑 Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">🏥</div><p class="empty-state__text">No hospitals registered yet.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+{# ══════════════ ACTIVITY LOG ══════════════ #}
+<div class="page-section" id="page-activity">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">📝</div>Admin Activity Log</div>
+      <span class="badge badge--neutral">Last 20 actions</span>
+    </div>
+    <div class="table-wrap">
+      {% if activity_log %}
+      <table class="table">
+        <thead><tr><th style="width:40px;"></th><th>Action</th><th>Details</th><th>Performed By</th><th>Time</th></tr></thead>
+        <tbody>
+          {% for log in activity_log %}
+          {% set act = log.action | lower %}
+          <tr>
+            <td style="text-align:center;">
+              {% if 'approve' in act %}🟢{% elif 'add' in act %}🔵{% elif 'remov' in act or 'subtract' in act %}🟡{% elif 'reject' in act %}🔴{% elif 'delete' in act %}💀{% elif 'password' in act %}🔒{% elif 'pdf' in act or 'excel' in act %}📄{% else %}📌{% endif %}
+            </td>
+            <td>
+              {% if 'approve' in act %}<span class="log-badge log-badge-approve">✓ {{ log.action }}</span>
+              {% elif 'add' in act %}<span class="log-badge log-badge-add">＋ {{ log.action }}</span>
+              {% elif 'remov' in act or 'subtract' in act %}<span class="log-badge log-badge-remove">− {{ log.action }}</span>
+              {% elif 'reject' in act %}<span class="log-badge log-badge-reject">✕ {{ log.action }}</span>
+              {% elif 'delete' in act %}<span class="log-badge log-badge-delete">🗑 {{ log.action }}</span>
+              {% else %}<span class="log-badge log-badge-default">{{ log.action }}</span>{% endif %}
+            </td>
+            <td style="color:var(--text-secondary);font-size:.82rem;">{{ log.details or '—' }}</td>
+            <td style="font-size:.82rem;"><b style="color:var(--crimson-light);">{{ log.admin_name }}</b></td>
+            <td style="font-size:.75rem;color:var(--text-muted);white-space:nowrap;">{{ log.logged_at.strftime('%d %b %Y, %H:%M') if log.logged_at else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">📋</div><p class="empty-state__text">No activity recorded yet.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# Push toast container — admin only #}
+<div class="push-toast-wrap" id="pushToastWrap"></div>
+
+<script>
+// ── GLOBALS FOR 100% PERFECT ANIMATION ──
+let globalAnalyticsData = null; // Stores the JSON data
+let currentActiveChart = null;  // Stores only the ONE chart currently visible
+
+// ════ LIVE NOTIFICATION SOCKET LISTENER ════
+document.addEventListener('DOMContentLoaded', function() {
+  showPage('profile');
+  
+  const socket = io();
+  socket.on('connect', () => {
+    socket.emit('join_admin_room', {});
+  });
+
+  // Live stat box updates
+  socket.on('stats_update', (data) => {
+    function updateStat(id, val, format) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const newVal = format ? format(val) : val;
+      if (el.textContent !== String(newVal)) {
+        el.textContent = newVal;
+        el.closest('.pstat').style.transition = 'transform 0.2s, box-shadow 0.2s';
+        el.closest('.pstat').style.transform = 'scale(1.06)';
+        el.closest('.pstat').style.boxShadow = '0 0 18px rgba(192,21,42,0.35)';
+        setTimeout(() => {
+          el.closest('.pstat').style.transform = '';
+          el.closest('.pstat').style.boxShadow = '';
+        }, 500);
+      }
+    }
+    if (data.total_requests !== undefined) updateStat('stat-total-requests', data.total_requests);
+    if (data.total_approved  !== undefined) updateStat('stat-approved',       data.total_approved);
+    if (data.total_pending   !== undefined) updateStat('stat-pending',        data.total_pending);
+    if (data.total_stock     !== undefined) updateStat('stat-stock',          data.total_stock, (v) => Number(v).toLocaleString());
+  });
+
+  // When a hospital or donor submits a blood request
+  socket.on('new_blood_request', (data) => {
+    showPushToast(data);             // Show the popup toast!
+    injectIntoDropdownMenu(data);    // Inject into the top right dropdown menu!
+  });
+});
+
+// ── THE TRICK: Completely destroy and redraw the graph to force animation ──
+function renderActiveTabChart() {
+    if (!globalAnalyticsData) return;
+
+    // Destroy the old canvas connection so it animates from ZERO
+    if (currentActiveChart) {
+        currentActiveChart.destroy();
+        currentActiveChart = null;
+    }
+
+    const data = globalAnalyticsData;
+    const gc = 'rgba(255,255,255,0.06)', tc = '#8E8EA0';
+    Chart.defaults.color = tc;
+
+    const fmtMl  = (n) => {
+      if (n >= 1000000) return (n/1000000).toFixed(1) + 'M ml';
+      if (n >= 1000)    return (n/1000).toFixed(1) + 'k ml';
+      return n + ' ml';
+    };
+
+    const makeScales = (yCallback) => ({
+      x: { grid: { color: gc }, ticks: { color: tc } },
+      y: { grid: { color: gc }, beginAtZero: true, ticks: {
+        color: tc,
+        callback: yCallback || ((v) => v)
+      }}
+    });
+
+    // Check which tab is currently active
+    const activeTabBtn = document.querySelector('.tab-btn.active');
+    if (!activeTabBtn) return;
+
+    if (activeTabBtn.id.includes('requests')) {
+        currentActiveChart = new Chart(document.getElementById('requestsChart'), {
+            type: 'bar',
+            data: {
+                labels: data.daily.map(d => d.day),
+                datasets: [
+                    { label:'Total',    data:data.daily.map(d=>d.total),    backgroundColor:'rgba(192,21,42,0.5)',  borderColor:'#C0152A', borderWidth:1.5, borderRadius:5 },
+                    { label:'Approved', data:data.daily.map(d=>d.approved), backgroundColor:'rgba(27,184,106,0.5)', borderColor:'#1BB86A', borderWidth:1.5, borderRadius:5 },
+                    { label:'Rejected', data:data.daily.map(d=>d.rejected), backgroundColor:'rgba(240,151,10,0.4)', borderColor:'#F0970A', borderWidth:1.5, borderRadius:5 }
+                ]
+            },
+            options: {
+                animation: { duration: 900, easing: 'easeOutQuart', delay: (ctx) => ctx.type === 'data' ? ctx.dataIndex * 55 + ctx.datasetIndex * 110 : 0 },
+                plugins: { legend: { labels: { color: tc, padding: 18 } } },
+                scales: makeScales((v) => Number.isInteger(v) ? v : '')
+            }
+        });
+    } 
+    else if (activeTabBtn.id.includes('demand')) {
+        currentActiveChart = new Chart(document.getElementById('demandChart'), {
+            type: 'doughnut',
+            data: {
+                labels: data.by_group.map(d => d.bg),
+                datasets: [{ data: data.by_group.map(d=>d.demand),
+                backgroundColor:['#C0152A','#E8192F','#F0970A','#D4A437','#1BB86A','#3B9FE8','#8B5CF6','#EC4899'],
+                borderWidth:2, borderColor:'#16161B'
+                }]
+            },
+            options: {
+                animation: { animateRotate: true, animateScale: true, duration: 900, easing: 'easeOutBack' },
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                cutout: '65%'
+            }
+        });
+
+        // Demand legend
+        const lgnd = document.getElementById('demandLegend');
+        if (lgnd) {
+            const clrs = ['#C0152A','#E8192F','#F0970A','#D4A437','#1BB86A','#3B9FE8','#8B5CF6','#EC4899'];
+            lgnd.innerHTML = data.by_group.map((d,i) =>
+                `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);">
+                <span style="width:10px;height:10px;border-radius:50%;background:${clrs[i%8]};flex-shrink:0;"></span>
+                <span style="font-size:.8rem;font-weight:700;color:#F0F0F4;min-width:32px;">${d.bg}</span>
+                <span style="font-size:.78rem;color:#8E8EA0;">${fmtMl(d.demand)}</span>
+                </div>`).join('');
+        }
+    }
+    else if (activeTabBtn.id.includes('stocks')) {
+        currentActiveChart = new Chart(document.getElementById('inventoryChart'), {
+            type: 'bar',
+            data: {
+                labels: data.inventory.map(d => d.bg),
+                datasets: [{
+                    label: 'Stock (ml)',
+                    data:  data.inventory.map(d => d.ml),
+                    backgroundColor: data.inventory.map(d => d.ml<500?'rgba(232,25,47,0.6)':d.ml>3000?'rgba(27,184,106,0.6)':'rgba(240,151,10,0.5)'),
+                    borderColor:     data.inventory.map(d => d.ml<500?'#E8192F':d.ml>3000?'#1BB86A':'#F0970A'),
+                    borderWidth: 1.5, borderRadius: 6
+                }]
+            },
+            options: {
+                animation: { duration:900, easing:'easeOutQuart', delay: (ctx) => ctx.type==='data' ? ctx.dataIndex*80 : 0 },
+                plugins: { legend: { display: false } },
+                scales: makeScales((v) => fmtMl(v))
+            }
+        });
+    }
+}
+
+async function fetchAnalyticsData() {
+  try {
+    const res  = await fetch('/api/analytics');
+    globalAnalyticsData = await res.json();
+    renderActiveTabChart(); // Draw it once data arrives!
+  } catch(e) { console.log('Charts:', e); }
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('page-' + id);
+  if (el) {
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  if (id === 'analytics') {
+    // If data isn't loaded yet, fetch it. Otherwise, force a redraw!
+    if (!globalAnalyticsData) { 
+        fetchAnalyticsData(); 
+    } else {
+        renderActiveTabChart(); 
+    }
+    
+    // Play the wrapper fade-in animation
+    const sec = document.getElementById('page-analytics');
+    sec.classList.remove('analytics-animate');
+    void sec.offsetWidth; 
+    sec.classList.add('analytics-animate');
+  }
+}
+
+function switchTab(panelId, btn) {
+  document.querySelectorAll('.tab-panel:not([id^="analyticsPanel-"])').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+  btn.classList.add('active');
+}
+
+function switchAnalyticsTab(name, btn) {
+  document.querySelectorAll('[id^="analyticsPanel-"]').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('[id^="analyticsBtn-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('analyticsPanel-' + name).classList.add('active');
+  btn.classList.add('active');
+
+  // Trigger the specific chart to rise up!
+  renderActiveTabChart();
+}
+
+
+// ════ PUSH NOTIFICATION TOAST GENERATOR ════
+function showPushToast(data) {
+  const cls = (data.priority || 'Normal').toLowerCase();
+  const wrap = document.getElementById('pushToastWrap');
+  if (!wrap) return;
+  const isCrit = cls === 'critical';
+  let emoji = '🟢'; let label = 'NORMAL';
+  if(cls === 'critical') { emoji = '🔴'; label = 'CRITICAL'; }
+  if(cls === 'urgent')   { emoji = '🟡'; label = 'URGENT'; }
+
+  const toast  = document.createElement('div');
+  toast.className = 'push-toast';
+  const who = data.hospital || data.donor || 'Someone';
+  
+  toast.innerHTML = `
+    <div class="push-toast__bar push-toast__bar--${cls}"></div>
+    <div class="push-toast__inner" style="position:relative;">
+      <button class="push-toast__close" onclick="dismissToast(this.closest('.push-toast'))">&#x2715;</button>
+      <div class="push-toast__head">
+        <div class="push-toast__icon-wrap">
+          <div class="push-toast__ring push-toast__ring--${cls}"></div>
+          <div class="push-toast__icon push-toast__icon--${cls}">${emoji}</div>
+        </div>
+        <div>
+          <div class="push-toast__label push-toast__label--${cls}">${label} BLOOD REQUEST</div>
+          <div class="push-toast__title">${who}</div>
+        </div>
+      </div>
+      <div class="push-toast__meta">
+        Needs <span class="blood-chip">${data.blood_group}</span>
+        &nbsp;&middot;&nbsp; <b>${data.volume} ml</b>
+        &nbsp;&middot;&nbsp; ${data.time || 'Just now'}
+      </div>
+      <div class="push-toast__actions">
+        <button class="push-toast__btn push-toast__btn--view" onclick="showPage('pending-requests');dismissToast(this.closest('.push-toast'))">&#x1F441; View Request</button>
+        <button class="push-toast__btn push-toast__btn--dismiss" onclick="dismissToast(this.closest('.push-toast'))">Dismiss</button>
+      </div>
+    </div>`;
+    
+  wrap.appendChild(toast);
+  setTimeout(() => dismissToast(toast), isCrit ? 12000 : 8000);
+  
+  if (isCrit) {
+    document.body.style.outline = '3px solid rgba(232,25,47,.5)';
+    setTimeout(() => { document.body.style.outline = ''; }, 700);
+  }
+}
+
+// ════ LIVE DROPDOWN MENU INJECTOR ════
+function injectIntoDropdownMenu(data) {
+    // 1. Add a red notification dot to the bell icon in base.html
+    const bellBtn = document.querySelector('.fa-bell')?.parentElement || document.querySelector('[class*="bell"]');
+    if (bellBtn) {
+        bellBtn.style.position = 'relative';
+        let dot = bellBtn.querySelector('.notif-dot');
+        if (!dot) {
+            dot = document.createElement('div');
+            dot.className = 'notif-dot';
+            dot.style.cssText = 'position:absolute; top:2px; right:4px; width:10px; height:10px; background:#E8192F; border-radius:50%; border:2px solid #16161B;';
+            bellBtn.appendChild(dot);
+        }
+    }
+
+    // 2. Find the "No new notifications" text and hide it
+    const allTextElements = document.querySelectorAll('div, p, span, li');
+    let targetContainer = null;
+    
+    for (let el of allTextElements) {
+        if (el.textContent.trim() === 'No new notifications' && el.children.length === 0) {
+            targetContainer = el.parentElement; // Found the dropdown body!
+            el.style.display = 'none'; 
+            break;
+        }
+    }
+    
+    // Fallback: If empty state is already gone, search for the LIVE NOTIFICATIONS header
+    if (!targetContainer) {
+        for (let el of allTextElements) {
+            if (el.textContent.trim().includes('LIVE NOTIFICATIONS')) {
+                targetContainer = el.closest('div').parentElement;
+                break;
+            }
+        }
+    }
+
+    // 3. Inject the beautiful list item!
+    if (targetContainer) {
+        const item = document.createElement('div');
+        
+        // Pick dot color based on priority
+        let color = '#1BB86A'; 
+        if(data.priority === 'Critical') color = '#E8192F';
+        if(data.priority === 'Urgent') color = '#F0970A';
+
+        item.style.cssText = 'padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 14px; align-items: flex-start; cursor: pointer; transition: background 0.2s; animation: analyticsHeaderIn 0.3s ease forwards;';
+        item.onmouseover = () => item.style.background = 'rgba(255,255,255,0.03)';
+        item.onmouseout = () => item.style.background = 'transparent';
+        
+        const who = data.hospital || data.donor || "User";
+        
+        item.innerHTML = `
+            <div style="width:10px; height:10px; border-radius:50%; background:${color}; margin-top:6px; box-shadow: 0 0 10px ${color};"></div>
+            <div style="flex: 1;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: #F0F0F4; line-height: 1.2;">${who}</div>
+                <div style="font-size: 0.75rem; color: #8E8EA0; margin-top: 4px;">Requested ${data.volume}ml of <b style="color:${color}">${data.blood_group}</b></div>
+                <div style="font-size: 0.65rem; color: #56566A; margin-top: 6px; font-weight: 600; text-transform: uppercase;">Just now &bull; ${data.priority}</div>
+            </div>
+        `;
+        
+        // Pop it at the top of the container!
+        targetContainer.appendChild(item); 
+    }
+}
+
+function adminTab(id) { showPage(id); }
+
+function dismissToast(toast) {
+  if (!toast || toast.classList.contains('out')) return;
+  toast.classList.add('out');
+  setTimeout(() => toast.remove(), 380);
+}
+</script>
+
+{% endblock %}

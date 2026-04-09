@@ -1,0 +1,721 @@
+{% extends "base.html" %}
+{% block title %}Donor Dashboard — LifeFlow{% endblock %}
+{% block head %}
+<style>
+.page-section        { display: none; padding: 1.25rem 0 2rem; }
+.page-section.active { display: block; }
+
+.badge-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;transition:all .2s;}
+.badge-card.earned{border-color:var(--crimson);background:rgba(192,21,42,0.08);}
+.badge-card.locked{opacity:.4;filter:grayscale(1);}
+.badge-icon{font-size:2rem;margin-bottom:6px;}
+.badge-label{font-size:.75rem;font-weight:700;color:var(--text-primary);}
+.badge-desc{font-size:.68rem;color:var(--text-muted);margin-top:3px;}
+.tip-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;display:none;opacity:0;transition:opacity .4s ease;}
+.tip-card.active{display:block;opacity:1;}
+.compat-chip{display:inline-block;background:rgba(192,21,42,.12);border:1px solid rgba(192,21,42,.3);color:var(--crimson-light);border-radius:6px;padding:3px 10px;font-size:.78rem;font-weight:700;margin:3px;}
+.compat-chip.receive{background:rgba(27,184,106,.1);border-color:rgba(27,184,106,.3);color:var(--success);}
+.lb-rank{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0;}
+.lb-rank-1{background:linear-gradient(135deg,#D4A437,#F0C060);color:#1A1A2E;}
+.lb-rank-2{background:linear-gradient(135deg,#8E8EA0,#C0C0D0);color:#1A1A2E;}
+.lb-rank-3{background:linear-gradient(135deg,#C0152A,#E8192F);color:#fff;}
+.lb-rank-n{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-muted);}
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ══ OVERVIEW (landing) ══ #}
+<div class="page-section" id="page-overview">
+
+  <div class="profile-card">
+    <div class="profile-card__bg"><div class="profile-card__drops"><span></span><span></span><span></span><span></span></div></div>
+    <div class="profile-card__body">
+      <div class="profile-header">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar-pulse"></div>
+          <div class="profile-avatar">{{ name[0]|upper }}</div>
+          <div class="profile-avatar-status" style="{% if not is_eligible %}background:#F0970A;box-shadow:0 0 8px rgba(240,151,10,.6);{% endif %}"></div>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">{{ name }}</h1>
+          <div class="profile-role-badge">🩸 Registered Blood Donor</div>
+          {% if donor_info %}
+          <div class="profile-email">Blood Group: <strong style="color:var(--crimson-light);">{{ donor_info.blood_group }}</strong> &nbsp;·&nbsp; Age: {{ donor_info.age }} yrs &nbsp;·&nbsp; Weight: {{ donor_info.weight }} kg</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="profile-stats-row">
+        <div class="pstat"><div class="pstat__icon">💉</div><div class="pstat__val" id="d-stat-donations" style="color:var(--crimson-light);">{{ donor_info.total_donations if donor_info else 0 }}</div><div class="pstat__lbl">Total Donations</div></div>
+        <div class="pstat">
+          <div class="pstat__icon">{% if is_eligible %}✅{% else %}⏳{% endif %}</div>
+          {% if is_eligible %}<div class="pstat__val" style="color:var(--success);">✓</div>
+          {% else %}<div class="pstat__val" style="color:#F0970A;">{{ days_remaining }}</div>{% endif %}
+          <div class="pstat__lbl">{% if is_eligible %}Eligible Now{% else %}Days Left{% endif %}</div>
+        </div>
+        <div class="pstat"><div class="pstat__icon">🏅</div><div class="pstat__val" id="d-stat-badges">{{ earned_keys | length }}<span style="font-size:.9rem;color:var(--text-muted);"> / {{ badges | length }}</span></div><div class="pstat__lbl">Badges Earned</div></div>
+        <div class="pstat"><div class="pstat__icon">🩸</div><div class="pstat__val">{{ donor_info.blood_group if donor_info else '—' }}</div><div class="pstat__lbl">Blood Group</div></div>
+      </div>
+
+      <div class="profile-meta">
+        {% if donor_info %}
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">📅</span><span class="profile-meta-chip__label">Age</span><span class="profile-meta-chip__val">{{ donor_info.age }} yrs</span></div>
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">⚖️</span><span class="profile-meta-chip__label">Weight</span><span class="profile-meta-chip__val">{{ donor_info.weight }} kg</span></div>
+        {% endif %}
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">🗓</span><span class="profile-meta-chip__label">Next Eligible</span><span class="profile-meta-chip__val">{{ eligible_date.strftime('%d %b %Y') if eligible_date else 'Now!' }}</span></div>
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">{% if is_eligible %}✅{% else %}⏳{% endif %}</span><span class="profile-meta-chip__label">Status</span><span class="profile-meta-chip__val" style="color:{% if is_eligible %}var(--success){% else %}var(--warning){% endif %};">{% if is_eligible %}Eligible{% else %}{{ days_remaining }}d left{% endif %}</span></div>
+      </div>
+
+      <div class="profile-divider"></div>
+
+      <div class="profile-actions">
+        <button class="profile-action-btn" onclick="showDonorPage('eligibility')"><span class="pa-icon">🎯</span>Eligibility</button>
+        <button class="profile-action-btn" onclick="showDonorPage('donate')"><span class="pa-icon">💉</span>Log Donation</button>
+        <button class="profile-action-btn" onclick="showDonorPage('request-blood')"><span class="pa-icon">🩸</span>Request Blood</button>
+        <button class="profile-action-btn" onclick="showDonorPage('compatibility')"><span class="pa-icon">🔬</span>Compatibility</button>
+        <button class="profile-action-btn" onclick="showDonorPage('achievements')"><span class="pa-icon">🏅</span>Achievements</button>
+        <button class="profile-action-btn" onclick="showDonorPage('hospitals')"><span class="pa-icon">📍</span>Hospitals</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{# ══ ELIGIBILITY TRACKER ══ #}
+<div class="page-section" id="page-eligibility">
+  <div class="card" style="{% if is_eligible %}border-color:var(--success);{% endif %}">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">🎯</div>Donation Eligibility Tracker</div>
+      {% if is_eligible %}<span class="badge badge--approved">✓ Eligible Now</span>
+      {% else %}<span class="badge badge--pending">Next: {{ eligible_date.strftime('%d %b %Y') if eligible_date else '—' }}</span>{% endif %}
+    </div>
+    <div class="card-body">
+      <div style="display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap;">
+        <div style="flex-shrink:0;position:relative;width:160px;height:160px;">
+          <svg width="160" height="160" style="transform:rotate(-90deg);">
+            <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+            <circle cx="80" cy="80" r="68" fill="none" stroke="{% if is_eligible %}#1BB86A{% else %}#F0970A{% endif %}"
+                    stroke-width="12" stroke-linecap="round" stroke-dasharray="427"
+                    stroke-dashoffset="{{ (427 * (100 - progress) / 100) | int }}" style="transition:stroke-dashoffset 1.2s ease;"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+            {% if is_eligible %}<div style="font-size:2rem;">✅</div>
+            <div style="font-size:.68rem;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:.07em;margin-top:5px;">Ready!</div>
+            {% else %}
+            <div style="font-size:2rem;font-weight:800;color:var(--text-primary);line-height:1;">{{ days_remaining }}</div>
+            <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;">days left</div>
+            <div style="font-size:.75rem;font-weight:700;color:var(--warning);margin-top:4px;">{{ progress }}%</div>
+            {% endif %}
+          </div>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          {% if is_eligible %}
+            <div style="font-size:1.2rem;font-weight:700;color:var(--success);margin-bottom:8px;">🎉 You're Ready to Donate!</div>
+            <p style="color:var(--text-secondary);font-size:.88rem;line-height:1.65;margin:0 0 14px;">
+              {% if last_donation_date %}Last donation: <strong class="text-primary">{{ last_donation_date.strftime('%d %b %Y') }}</strong>. Recovery complete!
+              {% else %}You've never donated before — make your first life-saving donation today!{% endif %}
+            </p>
+            <button class="btn btn--primary" onclick="showDonorPage('donate')">💉 Log a Donation Now</button>
+          {% else %}
+            <div style="font-size:1rem;font-weight:700;color:var(--text-primary);margin-bottom:10px;">Recovery Period in Progress</div>
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-muted);margin-bottom:6px;">
+                <span>{{ last_donation_date.strftime('%d %b') if last_donation_date else '' }}</span>
+                <span style="color:var(--warning);font-weight:600;">{{ progress }}% recovered</span>
+                <span style="color:var(--success);">{{ eligible_date.strftime('%d %b %Y') if eligible_date else '' }}</span>
+              </div>
+              <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
+                <div style="height:100%;width:{{ progress }}%;border-radius:999px;background:linear-gradient(90deg,var(--crimson),var(--warning));transition:width 1.2s ease;"></div>
+              </div>
+            </div>
+            <div style="background:rgba(240,151,10,0.08);border:1px solid rgba(240,151,10,0.25);border-radius:10px;padding:12px 16px;display:inline-flex;align-items:center;gap:12px;">
+              <span style="font-size:1.2rem;">⏱</span>
+              <div>
+                <div style="font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;">Live Countdown</div>
+                <div style="font-size:1rem;font-weight:700;color:var(--warning);font-variant-numeric:tabular-nums;" id="live-timer-full">Calculating...</div>
+              </div>
+            </div>
+          {% endif %}
+          <div style="margin-top:16px;">
+            <a href="/donor_certificate" class="btn btn--secondary btn--sm">🏆 Download Certificate</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ LOG DONATION ══ #}
+<div class="page-section" id="page-donate">
+  <div class="grid grid--2 section-gap" style="align-items:start;">
+    <div class="card">
+      <div class="card-header"><div class="card-title"><div class="card-title-icon">💉</div>Log a Donation</div></div>
+      <div class="card-body">
+        {% if not is_eligible and last_donation_date %}
+        <div class="form-alert form-alert--error" style="margin-bottom:1rem;">
+          <span class="form-alert__icon">⚠</span>
+          Not yet eligible — wait <strong>{{ days_remaining }} more day{{ 's' if days_remaining != 1 else '' }}</strong>.
+        </div>
+        {% endif %}
+        <form method="POST" action="/log_donation">
+          <div class="form-group">
+            <label class="form-label">Confirm Blood Group</label>
+            <select class="form-select" name="blood_group" required {% if not is_eligible and last_donation_date %}disabled{% endif %}>
+              <option value="" disabled selected>Select blood group</option>
+              {% if donor_info %}<option value="{{ donor_info.blood_group }}" selected>{{ donor_info.blood_group }} (your group)</option>{% endif %}
+              {% for bg in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+              <option value="{{ bg }}">{{ bg }}</option>{% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn--full {% if is_eligible or not last_donation_date %}btn--primary{% else %}btn--ghost{% endif %}"
+                  {% if not is_eligible and last_donation_date %}disabled{% endif %}>
+            {% if is_eligible or not last_donation_date %}🩸 Record Donation (+500ml)
+            {% else %}🔒 Not Yet Eligible ({{ days_remaining }} days){% endif %}
+          </button>
+        </form>
+        <div style="margin-top:14px;text-align:center;">
+          <a href="/donor_certificate" class="btn btn--secondary btn--sm">🏆 Download Donation Certificate</a>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title"><div class="card-title-icon">💡</div>Why Donate?</div></div>
+      <div class="card-body">
+        <div class="check-list">
+          <div class="check-item"><span class="check-item__icon">🩸</span><span>One donation can save up to <strong>3 lives</strong></span></div>
+          <div class="check-item"><span class="check-item__icon">⏱</span><span>Takes only <strong>10–15 minutes</strong> to donate</span></div>
+          <div class="check-item"><span class="check-item__icon">💪</span><span>Body replenishes blood within <strong>56 days</strong></span></div>
+          <div class="check-item"><span class="check-item__icon">🏅</span><span>Earn badges and rise up the <strong>donor leaderboard</strong></span></div>
+          <div class="check-item"><span class="check-item__icon">🏆</span><span>Download a <strong>donation certificate</strong> for every donation</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ REQUEST BLOOD ══ #}
+<div class="page-section" id="page-request-blood">
+  <div class="grid grid--2 section-gap" style="align-items:start;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><div class="card-title-icon">🏥</div>Request Blood for Yourself</div>
+        <span class="badge badge--pending">For hospitalised donors</span>
+      </div>
+      <div class="card-body">
+        <p class="text-secondary text-sm" style="margin-bottom:1.25rem;">If you are currently admitted in a hospital and need blood, submit a request here. The admin will review and allocate from available stock.</p>
+        <form method="POST" action="/donor_request_blood">
+          <div class="form-group">
+            <label class="form-label">Blood Group Needed</label>
+            <select class="form-select" name="blood_group" id="req-bg-donor" onchange="updateDonorAvail(this.value)" required>
+              <option value="" disabled selected>Select blood group</option>
+              {% for bg in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+              <option value="{{ bg }}">{{ bg }}{% if availability.get(bg, 0) > 0 %} — {{ availability[bg] }}ml available{% else %} — Out of stock{% endif %}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div id="donor-avail-info" style="display:none;margin-bottom:12px;padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:.82rem;"></div>
+          <div class="form-group">
+            <label class="form-label">Volume Required (ml)</label>
+            <input class="form-input" type="number" name="volume" placeholder="e.g. 500" min="100" step="100" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Reason / Medical Need</label>
+            <input class="form-input" type="text" name="reason" placeholder="e.g. Surgery, Accident, Anaemia">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select class="form-select" name="priority">
+              <option value="Normal">Normal</option>
+              <option value="Urgent">Urgent</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">🩸 Submit Blood Request</button>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title"><div class="card-title-icon">📋</div>My Blood Request History</div></div>
+      <div class="table-wrap">
+        {% if my_blood_requests %}
+        <table class="table">
+          <thead><tr><th>Blood</th><th>Vol</th><th>Priority</th><th>Reason</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for r in my_blood_requests %}
+            <tr>
+              <td><span class="blood-badge--sm">{{ r.blood_group }}</span></td>
+              <td>{{ r.quantity_needed_ml }}ml</td>
+              <td>{% if r.priority=='Critical' %}<span style="color:var(--error);font-weight:700;">Critical</span>
+                  {% elif r.priority=='Urgent' %}<span style="color:var(--warning);font-weight:700;">Urgent</span>
+                  {% else %}<span style="color:var(--text-muted);">Normal</span>{% endif %}</td>
+              <td class="td--sm">{{ r.reason or '—' }}</td>
+              <td class="td--sm">{{ r.request_date.strftime('%d %b %Y') if r.request_date else '—' }}</td>
+              <td>{% if r.status=='Approved' %}<span class="badge badge--approved">✓ Approved</span>
+                  {% elif r.status=='Rejected' %}<span class="badge badge--rejected">✕ Rejected</span>
+                  {% else %}<span class="badge badge--pending">⏳ Pending</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><div class="empty-state__icon">📋</div><p class="empty-state__text">No blood requests submitted yet.</p></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ COMPATIBILITY ══ #}
+<div class="page-section" id="page-compatibility">
+  <div class="card">
+    <div class="card-header"><div class="card-title"><div class="card-title-icon">🔬</div>Blood Compatibility Checker</div></div>
+    <div class="card-body">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px;">
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Select Blood Group</label>
+          <select class="form-select" id="compat-select" style="width:160px;" onchange="checkCompat(this.value)">
+            <option value="" disabled selected>Choose group</option>
+            {% for bg in ['O-','O+','A-','A+','B-','B+','AB-','AB+'] %}
+            <option value="{{ bg }}" {% if donor_info and donor_info.blood_group == bg %}selected{% endif %}>{{ bg }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div id="compat-result" style="display:none;">
+        <div class="grid grid--2" style="gap:1.5rem;">
+          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:18px;">
+            <div style="font-size:.72rem;font-weight:700;color:var(--crimson-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Can Donate To</div>
+            <div id="donate-to"></div>
+          </div>
+          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:18px;">
+            <div style="font-size:.72rem;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Can Receive From</div>
+            <div id="receive-from"></div>
+          </div>
+        </div>
+      </div>
+      {% if donor_info %}
+      <script>window.addEventListener('DOMContentLoaded',()=>checkCompat("{{ donor_info.blood_group }}"));</script>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# ══ ACHIEVEMENTS ══ #}
+<div class="page-section" id="page-achievements">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">🏅</div>Achievements & Badges</div>
+      <span class="badge badge--approved">{{ earned_keys | length }} / {{ badges | length }} earned</span>
+    </div>
+    <div class="card-body">
+      <div class="grid grid--4" style="gap:12px;">
+        {% for badge in badges %}
+        <div class="badge-card {% if badge.earned %}earned{% else %}locked{% endif %}" data-badge="{{ badge.key }}">
+          <div class="badge-icon">{{ badge.icon }}</div>
+          <div class="badge-label">{{ badge.label }}</div>
+          <div class="badge-desc">{{ badge.desc }}</div>
+          {% if badge.earned %}<div style="margin-top:8px;font-size:.65rem;font-weight:700;color:var(--success);">✓ EARNED</div>
+          {% else %}<div style="margin-top:8px;font-size:.65rem;color:var(--text-muted);">🔒 Locked</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ LEADERBOARD ══ #}
+<div class="page-section" id="page-leaderboard">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">🏆</div>Donor Leaderboard</div>
+      <span class="badge badge--info">All-time top donors</span>
+    </div>
+    <div class="card-body">
+      {% if leaderboard %}
+        {% for donor in leaderboard %}
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);">
+          <div class="lb-rank lb-rank-{% if loop.index <= 3 %}{{ loop.index }}{% else %}n{% endif %}">
+            {% if loop.index <= 3 %}{{ ['🥇','🥈','🥉'][loop.index-1] }}{% else %}{{ loop.index }}{% endif %}
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:.92rem;font-weight:600;color:var(--text-primary);">{{ donor.name }}</div>
+            <div style="font-size:.75rem;color:var(--text-muted);">Blood Group: <b>{{ donor.blood_group }}</b></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--crimson);">{{ donor.total_donations }}</div>
+            <div style="font-size:.7rem;color:var(--text-muted);">donations</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">🏆</div><p class="empty-state__text">No donations yet — be the first on the leaderboard!</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# ══ HEALTH TIPS ══ #}
+<div class="page-section" id="page-tips">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">💡</div>Health Tips for Donors</div>
+      <button onclick="nextTip()" class="btn btn--secondary btn--sm">Next Tip →</button>
+    </div>
+    <div class="card-body" style="min-height:120px;">
+      {% for tip in health_tips %}
+      <div class="tip-card {% if loop.first %}active{% endif %}" id="tip-{{ loop.index0 }}">
+        <div style="font-size:2.5rem;margin-bottom:10px;">{{ tip.icon }}</div>
+        <p style="color:var(--text-primary);font-size:1rem;font-weight:500;line-height:1.6;margin:0;">{{ tip.tip }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ══ NEARBY HOSPITALS ══ #}
+<div class="page-section" id="page-hospitals">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">📍</div>Nearby Hospitals</div>
+      <span class="badge badge--info" id="location-badge">Detecting location...</span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;">
+        <div style="position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);min-height:320px;">
+          <div id="map-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:12px;">
+            <div style="font-size:2.5rem;">📍</div>
+            <div style="font-size:.85rem;color:var(--text-muted);text-align:center;max-width:200px;line-height:1.6;">Allow location access to see hospitals near you</div>
+            <button onclick="requestLocation()" class="btn btn--primary btn--sm">Enable Location</button>
+          </div>
+          <iframe id="map-iframe" style="display:none;width:100%;height:320px;border:none;" loading="lazy"></iframe>
+          <a id="open-maps-link" href="#" target="_blank" style="display:none;position:absolute;bottom:10px;right:10px;background:rgba(13,13,15,.85);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:.72rem;color:var(--text-secondary);text-decoration:none;">🗺 Open Maps ↗</a>
+        </div>
+        <div>
+          <div style="font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Registered Hospitals</div>
+          {% for h in nearby_hospitals %}
+          <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+            <div style="font-size:.88rem;font-weight:700;color:var(--text-primary);">🏥 {{ h.hospital_name }}</div>
+            {% if h.contact_number %}<div style="font-size:.76rem;color:var(--text-muted);margin-top:3px;">📞 {{ h.contact_number }}</div>{% endif %}
+            <button onclick="searchHospital('{{ h.hospital_name | replace("'", "\\'") }}')"
+                    style="margin-top:8px;background:none;border:1px solid var(--border-accent);border-radius:6px;padding:3px 10px;font-size:.72rem;color:var(--crimson-light);cursor:pointer;">📍 Find on Map</button>
+          </div>
+          {% endfor %}
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="display:flex;gap:8px;">
+              <input id="custom-search" type="text" placeholder="Search any location..."
+                     style="flex:1;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.82rem;color:var(--text-primary);outline:none;"
+                     onkeydown="if(event.key==='Enter')searchCustom()">
+              <button onclick="searchCustom()" class="btn btn--primary btn--sm">Go</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ JAVASCRIPT ══ #}
+{% if not is_eligible and eligible_date %}
+<script>
+const eligibleDate=new Date("{{ eligible_date.strftime('%Y-%m-%d') }}T00:00:00");
+function tick(){
+  const diff=eligibleDate-new Date();
+  const p=n=>String(n).padStart(2,'0');
+  const txt=diff<=0?"Eligible now! 🎉":`${Math.floor(diff/86400000)}d  ${p(Math.floor((diff%86400000)/3600000))}h  ${p(Math.floor((diff%3600000)/60000))}m  ${p(Math.floor((diff%60000)/1000))}s`;
+  ['live-timer','live-timer-full'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=txt;if(diff<=0)el.style.color='var(--success)';}});
+}
+tick();setInterval(tick,1000);
+</script>
+{% endif %}
+
+<script>
+var tipIndex=0,tipTotal={{ health_tips|length if health_tips else 0 }},tipTimer=null;
+function showTip(idx){for(var i=0;i<tipTotal;i++){var c=document.getElementById('tip-'+i);if(c)c.classList.remove('active');}var t=document.getElementById('tip-'+idx);if(t)t.classList.add('active');tipIndex=idx;}
+function nextTip(){if(tipTotal<2)return;showTip((tipIndex+1)%tipTotal);clearInterval(tipTimer);tipTimer=setInterval(function(){showTip((tipIndex+1)%tipTotal);},5000);}
+if(tipTotal>1){tipTimer=setInterval(function(){showTip((tipIndex+1)%tipTotal);},5000);}
+</script>
+
+<script>
+async function checkCompat(bg){
+  if(!bg)return;
+  try{
+    const res=await fetch(`/api/compatibility/${bg}`);
+    const data=await res.json();
+    document.getElementById('compat-result').style.display='block';
+    document.getElementById('donate-to').innerHTML=(data.donate_to||[]).map(g=>`<span class="compat-chip">${g}</span>`).join('');
+    document.getElementById('receive-from').innerHTML=(data.receive_from||[]).map(g=>`<span class="compat-chip receive">${g}</span>`).join('');
+  }catch(e){console.log(e);}
+}
+
+const donorAvail={{ availability | tojson }};
+function updateDonorAvail(bg){
+  const el=document.getElementById('donor-avail-info');
+  if(!bg){el.style.display='none';return;}
+  const ml=donorAvail[bg]||0;
+  el.style.display='block';
+  if(ml>1000)el.innerHTML=`<span style="color:var(--success);">✓ Good stock: <b>${ml} ml</b> available</span>`;
+  else if(ml>0)el.innerHTML=`<span style="color:var(--warning);">⚠ Low stock: only <b>${ml} ml</b> available</span>`;
+  else el.innerHTML=`<span style="color:var(--error);">✕ Out of stock — admin will need to source this blood group</span>`;
+}
+
+let userLat=null,userLng=null;
+window.addEventListener('DOMContentLoaded',()=>requestLocation());
+function requestLocation(){
+  if(!navigator.geolocation){showMapFallback();return;}
+  navigator.geolocation.getCurrentPosition(
+    pos=>{userLat=pos.coords.latitude.toFixed(6);userLng=pos.coords.longitude.toFixed(6);
+      loadMap(`blood bank near ${userLat},${userLng}`);
+      const b=document.getElementById('location-badge');
+      b.textContent='📍 Location found';b.style.cssText='background:rgba(27,184,106,0.15);color:var(--success);border-color:rgba(27,184,106,0.3);';},
+    ()=>{showMapFallback();document.getElementById('location-badge').textContent='⚠ Location denied';},
+    {timeout:8000,enableHighAccuracy:true}
+  );
+}
+function loadMap(query){
+  const src=`https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed&z=13`;
+  const iframe=document.getElementById('map-iframe');
+  iframe.src=src;iframe.style.display='block';
+  document.getElementById('map-placeholder').style.display='none';
+  const link=document.getElementById('open-maps-link');
+  link.href=`https://www.google.com/maps/search/${encodeURIComponent(query)}`;link.style.display='block';
+}
+function showMapFallback(){loadMap('blood bank hospital');}
+function searchHospital(name){const q=userLat?`${name} near ${userLat},${userLng}`:name;loadMap(q);document.getElementById('custom-search').value=name;}
+function searchCustom(){const val=document.getElementById('custom-search').value.trim();if(!val)return;loadMap(userLat?`${val} near ${userLat},${userLng}`:val);}
+
+function showDonorPage(id){
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('page-' + id);
+  if (el) {
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+function donorTab(id) { showDonorPage(id); }
+
+// Show overview on initial load
+document.addEventListener('DOMContentLoaded', function() {
+  showDonorPage('overview');
+});
+</script>
+
+{# ════ AI FAQ CHATBOT WIDGET ════ #}
+<style>
+.chat-widget{position:fixed;bottom:24px;right:24px;z-index:10000;}
+.chat-toggle{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#C0152A,#8B0E1E);border:none;cursor:pointer;font-size:1.5rem;box-shadow:0 4px 20px rgba(192,21,42,.5);display:flex;align-items:center;justify-content:center;transition:transform .2s;position:relative;}
+.chat-toggle:hover{transform:scale(1.1);}
+.chat-pulse{position:absolute;inset:0;border-radius:50%;background:rgba(192,21,42,.3);animation:cPulse 2s ease-out infinite;}
+@keyframes cPulse{0%{transform:scale(1);opacity:.6;}100%{transform:scale(1.6);opacity:0;}}
+.chat-box{position:absolute;bottom:70px;right:0;width:340px;background:var(--bg-card);border:1px solid var(--border);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.6);display:none;flex-direction:column;overflow:hidden;}
+.chat-box.open{display:flex;animation:cOpen .25s ease;}
+@keyframes cOpen{from{opacity:0;transform:scale(.92) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.chat-hdr{background:linear-gradient(135deg,#8B0E1E,#C0152A);padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.chat-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.chat-hdr-info{flex:1;} .chat-hdr-name{font-weight:700;font-size:.88rem;color:#fff;}
+.chat-hdr-status{font-size:.7rem;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:4px;}
+.chat-on-dot{width:5px;height:5px;background:#4ade80;border-radius:50%;animation:breathe 1.5s ease infinite;}
+.chat-x{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:.9rem;padding:0;}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;max-height:280px;}
+.cmsg{max-width:87%;padding:9px 12px;border-radius:13px;font-size:.81rem;line-height:1.5;}
+.cmsg-bot{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);align-self:flex-start;border-bottom-left-radius:3px;}
+.cmsg-user{background:linear-gradient(135deg,#C0152A,#8B0E1E);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
+.cmsg-time{font-size:.63rem;opacity:.55;margin-top:2px;}
+.ctyping{display:none;align-self:flex-start;background:var(--bg-elevated);border:1px solid var(--border);border-radius:13px;border-bottom-left-radius:3px;padding:9px 13px;gap:4px;}
+.ctyping.show{display:flex;}
+.tdot{width:5px;height:5px;background:var(--text-muted);border-radius:50%;animation:tBounce 1.2s ease infinite;}
+.tdot:nth-child(2){animation-delay:.2s;}.tdot:nth-child(3){animation-delay:.4s;}
+@keyframes tBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+.chat-sugg{padding:0 12px 8px;display:flex;flex-wrap:wrap;gap:5px;}
+.csugg{background:none;border:1px solid var(--border-accent);border-radius:999px;padding:3px 9px;font-size:.7rem;color:var(--crimson-light);cursor:pointer;transition:all .15s;}
+.csugg:hover{background:rgba(192,21,42,.1);}
+.chat-foot{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:7px;}
+.cinput{flex:1;background:var(--bg-elevated);border:1px solid var(--border);border-radius:9px;padding:7px 11px;font-size:.81rem;color:var(--text-primary);outline:none;transition:border-color .2s;}
+.cinput:focus{border-color:var(--crimson);}
+.csend{background:var(--crimson);border:none;border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:.9rem;color:#fff;flex-shrink:0;}
+</style>
+<div class="chat-widget">
+  <div class="chat-box" id="chat-box">
+    <div class="chat-hdr">
+      <div class="chat-av">🩺</div>
+      <div class="chat-hdr-info">
+        <div class="chat-hdr-name">LifeFlow Medical Assistant</div>
+        <div class="chat-hdr-status"><span class="chat-on-dot"></span>Online 24/7 · AI-Powered</div>
+      </div>
+      <button class="chat-x" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="cmsg cmsg-bot">👋 Hi! Ask me anything about blood donation, eligibility, or your health.<div class="cmsg-time">Now</div></div>
+    </div>
+    <div class="ctyping" id="ctyping"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>
+    <div class="chat-sugg" id="chat-sugg">
+      <button class="csugg" onclick="cSend('Am I eligible to donate?')">Am I eligible?</button>
+      <button class="csugg" onclick="cSend('How to prepare for donation?')">Preparation?</button>
+      <button class="csugg" onclick="cSend('What to eat after donating?')">After donation?</button>
+      <button class="csugg" onclick="cSend('How often can I donate?')">Frequency?</button>
+    </div>
+    <div class="chat-foot">
+      <input class="cinput" id="cinput" type="text" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')cSendMsg()">
+      <button class="csend" onclick="cSendMsg()">➤</button>
+    </div>
+  </div>
+  <button class="chat-toggle" onclick="toggleChat()"><span class="chat-pulse"></span>🩺</button>
+</div>
+<script>
+let chatOpen=false,donorChatHistory=[];
+function toggleChat(){chatOpen=!chatOpen;document.getElementById('chat-box').classList.toggle('open',chatOpen);if(chatOpen)document.getElementById('cinput').focus();}
+function cAppend(text,type,time){
+  const msgs=document.getElementById('chat-msgs'),div=document.createElement('div');
+  div.className=`cmsg cmsg-${type}`;
+  div.innerHTML=`${text.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>')}<div class="cmsg-time">${time}</div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+async function cSendMsg(){
+  const inp=document.getElementById('cinput'),msg=inp.value.trim();
+  if(!msg)return;inp.value='';
+  const now=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  cAppend(msg,'user',now);donorChatHistory.push({role:'user',content:msg});
+  document.getElementById('chat-sugg').style.display='none';
+  const ty=document.getElementById('ctyping');ty.classList.add('show');
+  document.getElementById('chat-msgs').scrollTop=99999;
+  try{
+    const res=await fetch('/api/chatbot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history:donorChatHistory.slice(-8)})});
+    const data=await res.json();ty.classList.remove('show');
+    cAppend(data.reply,'bot',data.time||now);donorChatHistory.push({role:'assistant',content:data.reply});
+  }catch(e){ty.classList.remove('show');cAppend('Connection error. Please try again.','bot',now);}
+}
+function cSend(text){document.getElementById('cinput').value=text;cSendMsg();}
+</script>
+
+<script>
+// ── Live donor stats + badge unlock via SocketIO ──
+(function() {
+  if (typeof io === 'undefined') return;
+  const socket = io();
+  const TOTAL_BADGES = {{ badges | length }};
+
+  socket.on('connect', () => {
+    socket.emit('join_donor', { donor_id: '{{ session.user_id }}' });
+  });
+
+  function pulseStat(el) {
+    if (!el) return;
+    const card = el.closest('.pstat');
+    if (!card) return;
+    card.style.transition = 'transform 0.2s, box-shadow 0.2s';
+    card.style.transform = 'scale(1.08)';
+    card.style.boxShadow = '0 0 20px rgba(192,21,42,0.40)';
+    setTimeout(() => { card.style.transform = ''; card.style.boxShadow = ''; }, 500);
+  }
+
+  socket.on('donor_stats_update', (data) => {
+    // Update total donations
+    const donEl = document.getElementById('d-stat-donations');
+    if (donEl && data.total_donations !== undefined) {
+      if (donEl.textContent !== String(data.total_donations)) {
+        donEl.textContent = data.total_donations;
+        pulseStat(donEl);
+      }
+    }
+    // Update badges count
+    const badgeEl = document.getElementById('d-stat-badges');
+    if (badgeEl && data.badges) {
+      const earned = data.badges.length;
+      badgeEl.innerHTML = `${earned}<span style="font-size:.9rem;color:var(--text-muted);"> / ${TOTAL_BADGES}</span>`;
+      pulseStat(badgeEl);
+      // Update badge card visuals live
+      data.badges.forEach(key => {
+        const card = document.querySelector(`.badge-card[data-badge="${key}"]`);
+        if (card) { card.classList.remove('locked'); card.classList.add('earned'); }
+      });
+    }
+  });
+
+  socket.on('badge_unlocked', (data) => {
+    showBadgePopup(data);
+  });
+
+  function showBadgePopup(badge) {
+    // Remove any existing popup
+    const old = document.getElementById('badge-popup');
+    if (old) old.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'badge-popup';
+    popup.style.cssText = `
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.7);
+      background:var(--bg-card,#1A1A26); border:2px solid var(--crimson,#C0152A);
+      border-radius:20px; padding:36px 44px; text-align:center; z-index:99999;
+      box-shadow:0 0 60px rgba(192,21,42,0.45), 0 24px 60px rgba(0,0,0,0.60);
+      opacity:0; transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      max-width:320px; width:90%;
+    `;
+    popup.innerHTML = `
+      <div style="font-size:3.5rem;margin-bottom:12px;animation:badgeBounce 0.6s ease-out;">${badge.icon}</div>
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--crimson,#C0152A);margin-bottom:8px;">Badge Unlocked!</div>
+      <div style="font-size:1.35rem;font-weight:800;color:var(--text-primary,#F2F2F5);margin-bottom:8px;">${badge.label}</div>
+      <div style="font-size:0.82rem;color:var(--text-muted,#8E8EA0);line-height:1.5;margin-bottom:22px;">${badge.desc}</div>
+      <button onclick="document.getElementById('badge-popup').remove();document.getElementById('badge-overlay').remove();"
+        style="background:var(--crimson,#C0152A);color:#fff;border:none;border-radius:10px;padding:10px 28px;font-size:0.85rem;font-weight:700;cursor:pointer;letter-spacing:0.04em;">
+        Awesome! 🎉
+      </button>
+    `;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'badge-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99998;backdrop-filter:blur(4px);';
+    overlay.onclick = () => { popup.remove(); overlay.remove(); };
+
+    // Add bounce keyframe if not already there
+    if (!document.getElementById('badge-keyframe')) {
+      const style = document.createElement('style');
+      style.id = 'badge-keyframe';
+      style.textContent = `
+        @keyframes badgeBounce {
+          0%   { transform: scale(0.5) rotate(-10deg); }
+          60%  { transform: scale(1.2) rotate(5deg); }
+          80%  { transform: scale(0.95) rotate(-2deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        @keyframes confettiDrop {
+          0%   { transform: translateY(-10px) rotate(0deg); opacity:1; }
+          100% { transform: translateY(60px) rotate(360deg); opacity:0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+
+    // Animate in
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        popup.style.opacity = '1';
+        popup.style.transform = 'translate(-50%,-50%) scale(1)';
+      });
+    });
+
+    // Confetti burst
+    const colors = ['#C0152A','#FFD700','#00C851','#33b5e5','#FF8800'];
+    for (let i = 0; i < 18; i++) {
+      const dot = document.createElement('div');
+      dot.style.cssText = `
+        position:fixed; width:10px; height:10px; border-radius:50%;
+        background:${colors[i % colors.length]};
+        left:${40 + Math.random()*20}vw; top:${35 + Math.random()*15}vh;
+        z-index:100000; pointer-events:none;
+        animation: confettiDrop ${0.6 + Math.random()*0.8}s ease-out ${Math.random()*0.3}s forwards;
+      `;
+      document.body.appendChild(dot);
+      setTimeout(() => dot.remove(), 1500);
+    }
+
+    // Auto-dismiss after 6 seconds
+    setTimeout(() => {
+      if (document.getElementById('badge-popup')) { popup.remove(); overlay.remove(); }
+    }, 6000);
+  }
+})();
+</script>
+{% endblock %}

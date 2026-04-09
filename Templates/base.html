@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LifeFlow Blood Bank{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lifeflow.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- Active theme override — injected by JS from localStorage -->
+    <link id="theme-stylesheet" rel="stylesheet" href="">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% if session.user_id %}
+    <nav class="navbar" id="navbar">
+        <a href="{% if session.role=='Admin' %}/admin_dashboard{% elif session.role=='Hospital' %}/hospital_dashboard{% else %}/donor_dashboard{% endif %}" class="nav-brand">
+            <div class="nav-brand-icon">🩸</div>
+            <span class="nav-brand-name">Life<em>Flow</em></span>
+        </a>
+
+        {# ── Mega-menu links (role-based) ── #}
+        <div class="nav-links" id="navLinks">
+
+            {% if session.role == 'Admin' %}
+            <div class="nav-item">
+                <button class="nav-item__btn">Dashboard <span class="nav-item__chevron">▾</span></button>
+                <div class="nav-drop">
+                    <a onclick="adminTab('profile')"           class="nav-drop__link">👤 Profile</a>
+                    <a onclick="adminTab('analytics')"         class="nav-drop__link">📊 Analytics</a>
+                    <hr class="nav-drop__divider">
+                    <a onclick="adminTab('inventory')"         class="nav-drop__link">🩸 Blood Stock Overview</a>
+                    <hr class="nav-drop__divider">
+                    <a onclick="adminTab('pending-requests')"  class="nav-drop__link">⏳ Pending Requests</a>
+                    <a onclick="adminTab('requests')"          class="nav-drop__link">📋 All Requests</a>
+                    <hr class="nav-drop__divider">
+                    <a onclick="adminTab('mldemand')"          class="nav-drop__link">🤖 ML Forecast</a>
+                    <a onclick="adminTab('expiry')"            class="nav-drop__link">⏰ Expiry</a>
+                    <a onclick="adminTab('activity')"          class="nav-drop__link">📝 Activity Log</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <button class="nav-item__btn">Users <span class="nav-item__chevron">▾</span></button>
+                <div class="nav-drop">
+                    <a onclick="adminTab('users')"      class="nav-drop__link">🏥 Hospitals</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <button class="nav-item__btn">Actions <span class="nav-item__chevron">▾</span></button>
+                <div class="nav-drop">
+                    <a href="/download_report"          class="nav-drop__link">📄 Download Report</a>
+                    <a href="/export_inventory_excel"   class="nav-drop__link">📊 Export Excel</a>
+                </div>
+            </div>
+
+            {% elif session.role == 'Hospital' %}
+            <div class="nav-item">
+                <button class="nav-item__btn">Dashboard <span class="nav-item__chevron">▾</span></button>
+                <div class="nav-drop">
+                    <a onclick="hospitalTab('overview')"        class="nav-drop__link">🏠 Overview</a>
+                    <a onclick="hospitalTab('history')"         class="nav-drop__link">📋 My Requests</a>
+                    <a onclick="hospitalTab('donor-requests')"  class="nav-drop__link">🫀 Donor Requests</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <button class="nav-item__btn">Request Blood <span class="nav-item__chevron">▾</span></button>
+                <div class="nav-drop">
+                    <a onclick="hospitalTab('new-request')"     class="nav-drop__link">🆕 New Request</a>
+                    <a onclick="hospitalTab('availability')"    class="nav-drop__link">🩸 Blood Availability</a>
+                </div>
+            </div>
+
+            {% else %}
+            <div class="nav-item">
+                <button class="nav-item__btn">Dashboard <span class="nav-item__chevron">▾</span></button>
+                <div class="nav-drop">
+                    <a onclick="donorTab('overview')"           class="nav-drop__link">🏠 Overview</a>
+                    <a onclick="donorTab('eligibility')"        class="nav-drop__link">💉 Eligibility Tracker</a>
+                    <a onclick="donorTab('achievements')"       class="nav-drop__link">🏅 Achievements & Badges</a>
+                    <a onclick="donorTab('leaderboard')"        class="nav-drop__link">🏆 Leaderboard</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <button class="nav-item__btn">Blood Services <span class="nav-item__chevron">▾</span></button>
+                <div class="nav-drop">
+                    <a onclick="donorTab('donate')"             class="nav-drop__link">💉 Log a Donation</a>
+                    <a onclick="donorTab('request-blood')"      class="nav-drop__link">🩸 Request Blood</a>
+                    <a onclick="donorTab('compatibility')"      class="nav-drop__link">🔬 Compatibility</a>
+                    <a onclick="donorTab('hospitals')"          class="nav-drop__link">📍 Nearby Hospitals</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <button class="nav-item__btn">Tools <span class="nav-item__chevron">▾</span></button>
+                <div class="nav-drop">
+                    <a href="/donor_certificate"                class="nav-drop__link">📜 Certificate</a>
+                    <a onclick="donorTab('tips')"               class="nav-drop__link">💡 Health Tips</a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="nav-right">
+            <div class="nav-user">
+                <span>{{ session.name }}</span>
+                <span class="nav-role-badge">{{ session.role }}</span>
+            </div>
+
+            {# ── Notification Bell (Admin only) ── #}
+            {% if session.role == 'Admin' %}
+            <div class="notif-bell-wrap" id="notifWrap" onclick="toggleNotif(event)">
+                <span class="notif-bell" id="notifBell">🔔</span>
+                <span class="notif-badge" id="notifBadge">0</span>
+                <div class="notif-dropdown" id="notifDropdown">
+                    <div class="notif-header">
+                        <span class="notif-title">Live Notifications</span>
+                        <button class="notif-clear" onclick="clearNotifs(event)">Clear all</button>
+                    </div>
+                    <div class="notif-list" id="notifList">
+                        <div class="notif-empty" id="notifEmpty">No new notifications</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <a href="/logout" class="nav-logout-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Logout
+            </a>
+            <button class="nav-menu-btn" onclick="openSettings()" title="Settings">☰</button>
+        </div>
+    </nav>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="flash-message flash-message--{{ category }}">
+                <span class="flash-icon">{% if category == 'success' %}✓{% else %}⚠{% endif %}</span>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {# ── Settings Side Panel (all roles) ── #}
+    {% if session.user_id %}
+    <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-panel-hdr">
+            <span class="settings-panel-title">⚙️ Settings</span>
+            <button class="settings-close" onclick="closeSettings()">✕</button>
+        </div>
+
+        {# Account card #}
+        <div class="settings-section">
+            <div class="settings-section-title">Account</div>
+            <div style="background:linear-gradient(135deg,rgba(192,21,42,.1) 0%,rgba(0,0,0,0) 100%);border:1px solid rgba(192,21,42,.2);border-radius:12px;padding:1.25rem 1.25rem 1rem;">
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+                    <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#C0152A,#8B0E1E);display:flex;align-items:center;justify-content:center;font-size:{% if session.role=='Hospital' %}1.4rem{% else %}1.4rem{% endif %};font-weight:800;color:#fff;flex-shrink:0;box-shadow:0 0 0 3px rgba(192,21,42,.2),0 4px 16px rgba(192,21,42,.3);">
+                        {% if session.role == 'Admin' %}{{ session.name[0]|upper }}{% elif session.role == 'Hospital' %}🏥{% else %}{{ session.name[0]|upper }}{% endif %}
+                    </div>
+                    <div>
+                        <div style="font-size:1rem;font-weight:800;color:var(--text-primary);margin-bottom:5px;">{{ session.name }}</div>
+                        <div style="display:inline-block;background:rgba(192,21,42,.15);border:1px solid rgba(192,21,42,.3);color:var(--crimson-light);border-radius:999px;padding:2px 10px;font-size:.68rem;font-weight:700;letter-spacing:.06em;">
+                            {% if session.role == 'Admin' %}🛡 Administrator{% elif session.role == 'Hospital' %}🏥 Hospital{% else %}🩸 Donor{% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if session.email %}
+                <div style="font-size:.75rem;color:var(--text-muted);padding-top:.75rem;border-top:1px solid rgba(255,255,255,.06);">✉ {{ session.email }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Admin-only: Analytics Chart in settings panel #}
+        {% if session.role == 'Admin' %}
+        <div class="settings-section" id="adminAnalyticsSection">
+            <div class="settings-section-title settings-section-toggle" onclick="toggleAnalyticsPanel()">
+                <span>📊 Analytics Overview</span>
+                <span id="analyticsChevron" class="settings-chevron">▼</span>
+            </div>
+            <div id="analyticsPanel" style="display:none;margin-top:14px;">
+                {# Mini doughnut chart #}
+                <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+                    <div style="position:relative;width:110px;height:110px;flex-shrink:0;">
+                        <canvas id="settingsDoughnut" width="110" height="110"></canvas>
+                        <div id="settingsDoughnutCenter" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                            <span id="settingsTotalVal" style="font-size:1.1rem;font-weight:800;color:#F0F0F4;">—</span>
+                            <span style="font-size:.58rem;color:#8E8EA0;text-transform:uppercase;letter-spacing:.06em;">Total</span>
+                        </div>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                            <span style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#8E8EA0;"><span style="width:9px;height:9px;border-radius:50%;background:#1BB86A;display:inline-block;"></span>Approved</span>
+                            <span id="sApproved" style="font-size:.82rem;font-weight:700;color:#1BB86A;">—</span>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                            <span style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#8E8EA0;"><span style="width:9px;height:9px;border-radius:50%;background:#F0970A;display:inline-block;"></span>Pending</span>
+                            <span id="sPending" style="font-size:.82rem;font-weight:700;color:#F0970A;">—</span>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <span style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#8E8EA0;"><span style="width:9px;height:9px;border-radius:50%;background:#E8192F;display:inline-block;"></span>Rejected</span>
+                            <span id="sRejected" style="font-size:.82rem;font-weight:700;color:#E8192F;">—</span>
+                        </div>
+                    </div>
+                </div>
+                {# Blood group demand bars #}
+                <div class="settings-demand-label">Blood Demand (30 days)</div>
+                <div id="sDemandBars" style="display:flex;flex-direction:column;gap:5px;"></div>
+                <div style="margin-top:10px;text-align:center;">
+                    <a href="/admin_dashboard" style="font-size:.72rem;color:var(--crimson-light);text-decoration:none;">View full analytics →</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# Change Password — collapsed by default #}
+        <div class="settings-section">
+            <div class="settings-section-title settings-section-toggle" onclick="togglePwdSection()">
+                <span>🔒 Change Password</span>
+                <span id="pwdChevron" class="settings-chevron">▼</span>
+            </div>
+            <div id="pwdSection" style="display:none;margin-top:12px;">
+                <div id="settings-flash" style="display:none;" class="flash-inline flash-inline--success"></div>
+                <form method="POST" action="/change_password" onsubmit="handlePwdSubmit(event)">
+                    <div class="settings-form-group">
+                        <label class="settings-label">Current Password</label>
+                        <input class="settings-input" type="password" name="current_password" id="sp-cur" required>
+                    </div>
+                    <div class="settings-form-group">
+                        <label class="settings-label">New Password</label>
+                        <input class="settings-input" type="password" name="new_password" id="sp-new" required>
+                    </div>
+                    <div class="settings-form-group">
+                        <label class="settings-label">Confirm New Password</label>
+                        <input class="settings-input" type="password" name="confirm_password" id="sp-conf" required>
+                    </div>
+                    <button type="submit" class="settings-submit">Update Password</button>
+                </form>
+            </div>
+        </div>
+
+        {# Navigation #}
+        <div class="settings-section">
+            <div class="settings-section-title">Navigation</div>
+            {% if session.role == 'Admin' %}
+            <a href="/admin_dashboard" class="settings-nav-link">📊 Admin Dashboard</a>
+            {% elif session.role == 'Hospital' %}
+            <a href="/hospital_dashboard" class="settings-nav-link">🏥 Hospital Dashboard</a>
+            {% else %}
+            <a href="/donor_dashboard" class="settings-nav-link">🫀 Donor Dashboard</a>
+            {% endif %}
+            <a href="/logout" class="settings-nav-link settings-nav-link--danger">🚪 Logout</a>
+        </div>
+
+        {# Danger zone #}
+        <div class="settings-section">
+            <div class="settings-section-title" style="color:var(--error);">⚠ Danger Zone</div>
+            <div style="background:rgba(232,25,47,.06);border:1px solid rgba(232,25,47,.2);border-radius:10px;padding:14px;">
+                <div style="font-size:.78rem;color:var(--text-secondary);margin-bottom:10px;line-height:1.55;">Permanently delete your account and all associated data. This action cannot be undone.</div>
+                <button onclick="confirmDeleteAccount()" style="width:100%;background:transparent;border:1px solid rgba(232,25,47,.4);color:#E8192F;border-radius:8px;padding:8px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(232,25,47,.1)'" onmouseout="this.style.background='transparent'">🗑 Delete My Account</button>
+            </div>
+        </div>
+        {# ── Theme Switcher ── #}
+        <div class="settings-section" id="themeSwitcherSection">
+            <div class="settings-section-title">🎨 UI Theme</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;">
+                <button onclick="applyTheme('glassmorphism')" id="theme-btn-glassmorphism"
+                    style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all 0.2s;text-align:left;">
+                    <div style="font-size:1.3rem;margin-bottom:6px;">🔮</div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Glassmorphism</div>
+                    <div style="font-size:0.65rem;color:var(--text-muted);">Frosted glass panels</div>
+                </button>
+                <button onclick="applyTheme('neon')" id="theme-btn-neon"
+                    style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all 0.2s;text-align:left;">
+                    <div style="font-size:1.3rem;margin-bottom:6px;">⚡</div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Neon / Cyberpunk</div>
+                    <div style="font-size:0.65rem;color:var(--text-muted);">Electric glow borders</div>
+                </button>
+                <button onclick="applyTheme('luxury')" id="theme-btn-luxury"
+                    style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all 0.2s;text-align:left;">
+                    <div style="font-size:1.3rem;margin-bottom:6px;">🪄</div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Luxury Minimal</div>
+                    <div style="font-size:0.65rem;color:var(--text-muted);">Editorial elegance</div>
+                </button>
+                <button onclick="applyTheme('bento')" id="theme-btn-bento"
+                    style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.10);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all 0.2s;text-align:left;">
+                    <div style="font-size:1.3rem;margin-bottom:6px;">⬛</div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Bento Grid</div>
+                    <div style="font-size:0.65rem;color:var(--text-muted);">Modular SaaS tiles</div>
+                </button>
+                <button onclick="applyTheme('aurora')" id="theme-btn-aurora"
+                    style="background:linear-gradient(135deg,rgba(79,70,229,0.15),rgba(236,72,153,0.10));border:1px solid rgba(79,70,229,0.30);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all 0.2s;text-align:left;">
+                    <div style="font-size:1.3rem;margin-bottom:6px;">🌌</div>
+                    <div style="font-size:0.78rem;font-weight:700;color:#a78bfa;margin-bottom:2px;">Aurora</div>
+                    <div style="font-size:0.65rem;color:#8898cc;">Iridescent night sky</div>
+                </button>
+                <button onclick="applyTheme('obsidian')" id="theme-btn-obsidian"
+                    style="background:linear-gradient(135deg,rgba(14,14,15,0.95),rgba(30,30,32,0.90));border:1px solid rgba(201,169,110,0.30);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all 0.2s;text-align:left;">
+                    <div style="font-size:1.3rem;margin-bottom:6px;">✨</div>
+                    <div style="font-size:0.78rem;font-weight:700;color:#c9a96e;margin-bottom:2px;">Obsidian</div>
+                    <div style="font-size:0.65rem;color:#9a9080;">Volcanic gold luxury</div>
+                </button>
+                <button onclick="applyTheme('sakura')" id="theme-btn-sakura"
+                    style="background:linear-gradient(135deg,rgba(253,240,242,0.90),rgba(255,252,250,0.85));border:1px solid rgba(244,167,185,0.40);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all 0.2s;text-align:left;">
+                    <div style="font-size:1.3rem;margin-bottom:6px;">🌸</div>
+                    <div style="font-size:0.78rem;font-weight:700;color:#c2607a;margin-bottom:2px;">Sakura</div>
+                    <div style="font-size:0.65rem;color:#8a6068;">Japanese blossom</div>
+                </button>
+                <button onclick="applyTheme('terminal')" id="theme-btn-terminal"
+                    style="background:linear-gradient(135deg,rgba(0,12,0,0.95),rgba(0,20,0,0.90));border:1px solid rgba(0,255,65,0.30);border-radius:12px;padding:12px 10px;cursor:pointer;transition:all 0.2s;text-align:left;">
+                    <div style="font-size:1.3rem;margin-bottom:6px;">💻</div>
+                    <div style="font-size:0.78rem;font-weight:700;color:#00ff41;margin-bottom:2px;">Terminal</div>
+                    <div style="font-size:0.65rem;color:#009922;">Retro CRT phosphor</div>
+                </button>
+            </div>
+            <button onclick="applyTheme('default')" id="theme-btn-default"
+                style="width:100%;margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:8px 12px;cursor:pointer;transition:all 0.2s;font-size:0.75rem;color:var(--text-muted);">
+                ↩ Reset to Default Theme
+            </button>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-section-title">About</div>
+            <div style="font-size:.78rem;color:#56566A;line-height:1.7;">
+                <b style="color:#8E8EA0;">LifeFlow</b> Blood Bank Management System<br>
+                Version 2.0 · AI-Powered · Real-time
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── ETA Toast (shown to hospital on approval) ── #}
+    {% if session.role == 'Hospital' %}
+    <div class="eta-toast" id="etaToast">
+        <button class="eta-toast__close" onclick="document.getElementById('etaToast').classList.remove('show')">✕</button>
+        <div class="eta-toast__title">✅ Request Approved — Blood on the Way!</div>
+        <div class="eta-toast__body" id="etaBody"></div>
+        <div class="eta-timer" id="etaTimer"></div>
+        <div style="font-size:.72rem;color:#56566A;text-align:center;">Live countdown to estimated arrival</div>
+    </div>
+    {% endif %}
+
+    {# ── Donor Chatbot FAB ── #}
+    {% if session.role == 'Donor' %}
+    <button class="chat-fab" id="chatFab" onclick="toggleChat()" title="Ask LifeBot">
+        <span id="chatFabIcon">💬</span>
+        <span class="chat-dot"></span>
+    </button>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div class="chat-title">
+                <b>LifeBot</b>
+                <span>24/7 Donation Assistant · Always Online</span>
+            </div>
+            <button class="chat-close" onclick="toggleChat()">✕</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg bot">
+                👋 Hi <b>{{ session.name }}</b>! I'm <b>LifeBot</b>, your personal blood donation assistant.<br><br>
+                Ask me anything about eligibility, diet, blood types, recovery, or your donation certificate!
+            </div>
+        </div>
+        <div class="chat-suggestions">
+            <button class="sug-btn" onclick="sendSuggestion('Am I eligible to donate?')">Eligible?</button>
+            <button class="sug-btn" onclick="sendSuggestion('How often can I donate?')">Frequency</button>
+            <button class="sug-btn" onclick="sendSuggestion('What should I eat before donating?')">Diet tips</button>
+            <button class="sug-btn" onclick="sendSuggestion('Is donating blood safe?')">Safety</button>
+            <button class="sug-btn" onclick="sendSuggestion('How do I get my certificate?')">Certificate</button>
+        </div>
+        <div class="chat-input-row">
+            <input class="chat-input" id="chatInput" type="text" placeholder="Ask a question..."
+                   onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="chat-send" onclick="sendChat()">➤</button>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ══════════════════════════════════════════
+       GLOBAL JAVASCRIPT
+    ══════════════════════════════════════════ #}
+    <script>
+    // ── Navbar scroll ──
+    const navbar = document.getElementById('navbar');
+    if (navbar) window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 10));
+
+    // ── SocketIO setup ──
+    const socket = io();
+    const ROLE   = "{{ session.role | default('') }}";
+    const UID    = "{{ session.user_id | default('') }}";
+
+    socket.on('connect', () => {
+        if (ROLE === 'Admin') {
+            socket.emit('join_admin', {});
+        } else if (ROLE === 'Hospital') {
+            socket.emit('join_hospital', { hospital_id: UID });
+        }
+    });
+
+    // ════ ADMIN: Incoming request notification ════
+    let notifCount = 0;
+    // Listen on both event names for compatibility
+    function handleNewRequest(data) {
+        notifCount++;
+        const badge  = document.getElementById('notifBadge');
+        const bell   = document.getElementById('notifBell');
+        const list   = document.getElementById('notifList');
+        const empty  = document.getElementById('notifEmpty');
+
+        if (badge) { badge.textContent = notifCount; badge.classList.add('visible'); }
+
+        // Ring the bell
+        if (bell) {
+            bell.classList.remove('ring');
+            void bell.offsetWidth; // reflow
+            bell.classList.add('ring');
+        }
+
+        // Colour by priority
+        const cls = (data.priority || 'Normal').toLowerCase();
+        const clrMap = { critical:'#E8192F', urgent:'#F0970A', normal:'#3B9FE8' };
+        const clr    = clrMap[cls] || '#3B9FE8';
+
+        // Build notification item
+        const item = document.createElement('div');
+        item.className = `notif-item ${cls}`;
+        // Requester name: hospital name OR donor name, with role icon
+        const requesterName = data.hospital || data.donor || 'Unknown';
+        const roleIcon = data.donor ? '🫀 Donor' : '🏥 Hospital';
+        item.innerHTML = `
+            <div class="notif-item__label" style="color:${clr};">
+                ${data.priority === 'Critical' ? '🔴' : data.priority === 'Urgent' ? '🟡' : '🔵'}
+                ${data.priority || 'Normal'} · ${roleIcon}
+            </div>
+            <div class="notif-item__msg">
+                <b>${requesterName}</b> needs <b>${data.volume} ml</b> of
+                <b style="color:#C0152A;">${data.blood_group}</b>
+            </div>
+            <div class="notif-item__time">${data.time || 'Just now'}</div>`;
+
+        if (empty) empty.style.display = 'none';
+        if (list) list.prepend(item);
+
+        // Play sound
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator(); const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.value = cls === 'critical' ? 880 : 660;
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+            osc.start(); osc.stop(ctx.currentTime + 0.6);
+        } catch(e) {}
+
+        // Desktop notification
+        if (Notification.permission === 'granted') {
+            new Notification(`🩸 New ${data.priority} Request — LifeFlow`, {
+                body: `${data.hospital} needs ${data.volume}ml of ${data.blood_group}`,
+                icon: '/static/favicon.ico'
+            });
+        } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission().catch(() => {});
+        }
+
+        // Fire push toast for urgent/critical (admin only - showPushToast defined in admin_dashboard)
+        if (typeof showPushToast === 'function') {
+            showPushToast(data);
+        }
+    }
+    // Register once — handleNewRequest already calls showPushToast internally
+    socket.on('new_blood_request', handleNewRequest);
+    socket.on('new_request', handleNewRequest);
+
+    socket.on('request_processed', (data) => {
+        // Update badge when a request is done
+        if (notifCount > 0) notifCount--;
+        const badge = document.getElementById('notifBadge');
+        if (badge) {
+            badge.textContent = notifCount;
+            if (notifCount === 0) badge.classList.remove('visible');
+        }
+    });
+
+    // ════ HOSPITAL: ETA toast on approval ════
+    let etaCountdownInterval = null;
+    socket.on('request_approved', (data) => {
+        const toast  = document.getElementById('etaToast');
+        const body   = document.getElementById('etaBody');
+        const timer  = document.getElementById('etaTimer');
+        if (!toast) return;
+
+        body.innerHTML = `
+            Your request <b>#${data.request_id}</b> for <b style="color:#C0152A;">${data.volume}ml
+            of ${data.blood_group}</b> has been <b style="color:#1BB86A;">approved</b> by
+            <b>${data.admin_name}</b>.<br><br>
+            📍 <b>Distance:</b> ${data.distance_km} km<br>
+            🚚 <b>Estimated arrival:</b> <b style="color:#1BB86A;">${data.eta_text}</b>`;
+
+        // Live countdown
+        let remaining = (data.eta_minutes || 30) * 60;
+        clearInterval(etaCountdownInterval);
+        function formatTime(s) {
+            const m = Math.floor(s/60), sec = s%60;
+            return `${m}m ${String(sec).padStart(2,'0')}s`;
+        }
+        timer.textContent = formatTime(remaining);
+        etaCountdownInterval = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(etaCountdownInterval);
+                timer.textContent = 'Arrived ✅';
+                timer.style.color = '#F0970A';
+            } else {
+                timer.textContent = formatTime(remaining);
+            }
+        }, 1000);
+
+        toast.classList.add('show');
+    });
+
+    // ════ Notification dropdown helpers ════
+    function toggleNotif(e) {
+        e.stopPropagation();
+        document.getElementById('notifDropdown').classList.toggle('open');
+    }
+    function clearNotifs(e) {
+        e.stopPropagation();
+        notifCount = 0;
+        const badge = document.getElementById('notifBadge');
+        if (badge) { badge.textContent = '0'; badge.classList.remove('visible'); }
+        const list  = document.getElementById('notifList');
+        if (list)  list.innerHTML = '<div class="notif-empty">No new notifications</div>';
+        document.getElementById('notifDropdown').classList.remove('open');
+    }
+    document.addEventListener('click', () => {
+        const d = document.getElementById('notifDropdown');
+        if (d) d.classList.remove('open');
+    });
+
+    // ════ Chatbot (base widget - Donor only) ════
+    let baseChatHistory = [];
+    function toggleChat() {
+        const win = document.getElementById('chatWindow');
+        if (!win) return;
+        win.classList.toggle('open');
+        if (win.classList.contains('open')) {
+            document.getElementById('chatInput').focus();
+            document.getElementById('chatFabIcon').textContent = '✕';
+        } else {
+            document.getElementById('chatFabIcon').textContent = '💬';
+        }
+    }
+
+    function appendMsg(text, type) {
+        const msgs = document.getElementById('chatMessages');
+        const el   = document.createElement('div');
+        el.className = `msg ${type}`;
+        el.innerHTML = text;
+        msgs.appendChild(el);
+        msgs.scrollTop = msgs.scrollHeight;
+        return el;
+    }
+
+    async function sendChat() {
+        const input = document.getElementById('chatInput');
+        const msg   = input.value.trim();
+        if (!msg) return;
+        input.value = '';
+
+        appendMsg(msg, 'user');
+        baseChatHistory.push({role:'user', content:msg});
+        const typing = appendMsg('LifeBot is typing...', 'typing');
+
+        try {
+            const res  = await fetch('/api/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg, history: baseChatHistory.slice(-8) })
+            });
+            const data = await res.json();
+            typing.remove();
+            appendMsg(data.reply, 'bot');
+            baseChatHistory.push({role:'assistant', content:data.reply});
+        } catch (err) {
+            typing.remove();
+            appendMsg('Sorry, I could not connect. Please try again.', 'bot');
+        }
+    }
+
+    function sendSuggestion(text) {
+        document.getElementById('chatInput').value = text;
+        sendChat();
+    }
+
+    // ════ Settings Panel ════
+    function openSettings() {
+        document.getElementById('settingsPanel').classList.add('open');
+        document.getElementById('settingsOverlay').classList.add('open');
+    }
+    function closeSettings() {
+        document.getElementById('settingsPanel').classList.remove('open');
+        document.getElementById('settingsOverlay').classList.remove('open');
+    }
+    function togglePwdSection() {
+        const sec = document.getElementById('pwdSection');
+        const chv = document.getElementById('pwdChevron');
+        const open = sec.style.display === 'none' || sec.style.display === '';
+        sec.style.display = open ? 'block' : 'none';
+        chv.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+    function handlePwdSubmit(e) {
+        const nw   = document.getElementById('sp-new').value;
+        const conf = document.getElementById('sp-conf').value;
+        if (nw !== conf) {
+            e.preventDefault();
+            const fl = document.getElementById('settings-flash');
+            fl.className = 'flash-inline flash-inline--error';
+            fl.textContent = '⚠ New passwords do not match';
+            fl.style.display = 'flex';
+            return false;
+        }
+    }
+
+    // ════ Admin Analytics Panel in Settings ════
+    {% if session.role == 'Admin' %}
+    let settingsDoughnutChart = null;
+    let analyticsLoaded = false;
+
+    function toggleAnalyticsPanel() {
+        const panel = document.getElementById('analyticsPanel');
+        const chv   = document.getElementById('analyticsChevron');
+        const open  = panel.style.display === 'none' || panel.style.display === '';
+        panel.style.display = open ? 'block' : 'none';
+        chv.style.transform  = open ? 'rotate(180deg)' : 'rotate(0deg)';
+        if (open && !analyticsLoaded) loadSettingsAnalytics();
+    }
+
+    async function loadSettingsAnalytics() {
+        try {
+            const res  = await fetch('/api/analytics');
+            const data = await res.json();
+
+            // ── Today's totals from last daily entry ──
+            const daily = data.daily || [];
+            let approved = 0, rejected = 0, total = 0;
+            if (daily.length) {
+                const today = daily[daily.length - 1];
+                approved = today.approved || 0;
+                rejected = today.rejected || 0;
+                total    = today.total    || 0;
+            }
+            const pending = Math.max(0, total - approved - rejected);
+
+            document.getElementById('sApproved').textContent = approved;
+            document.getElementById('sPending').textContent  = pending;
+            document.getElementById('sRejected').textContent = rejected;
+            document.getElementById('settingsTotalVal').textContent = total;
+
+            // ── Doughnut chart (same style as analytics dashboard) ──
+            const canvas = document.getElementById('settingsDoughnut');
+            if (canvas) {
+                // Load Chart.js if not already present
+                if (typeof Chart === 'undefined') {
+                    await new Promise((res, rej) => {
+                        const s = document.createElement('script');
+                        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+                        s.onload = res; s.onerror = rej;
+                        document.head.appendChild(s);
+                    });
+                }
+                if (settingsDoughnutChart) settingsDoughnutChart.destroy();
+                settingsDoughnutChart = new Chart(canvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Approved','Pending','Rejected'],
+                        datasets:[{
+                            data: [approved, pending, rejected],
+                            backgroundColor: ['#1BB86A','#F0970A','#E8192F'],
+                            borderWidth: 2,
+                            borderColor: '#16161B'
+                        }]
+                    },
+                    options: {
+                        cutout: '68%',
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { enabled: true } }
+                    }
+                });
+            }
+
+            // ── Blood demand bars ──
+            const barsEl = document.getElementById('sDemandBars');
+            const byGroup = data.by_group || [];
+            if (barsEl && byGroup.length) {
+                const maxDemand = Math.max(...byGroup.map(d => d.demand), 1);
+                const colors = ['#C0152A','#E8192F','#F0970A','#D4A437','#1BB86A','#3B9FE8','#8B5CF6','#EC4899'];
+                barsEl.innerHTML = byGroup.map((d, i) => {
+                    const pct = Math.round((d.demand / maxDemand) * 100);
+                    return `<div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:.72rem;font-weight:700;color:#F0F0F4;width:28px;flex-shrink:0;">${d.bg}</span>
+                        <div style="flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;">
+                            <div style="height:100%;width:${pct}%;background:${colors[i%colors.length]};border-radius:3px;transition:width .8s ease;"></div>
+                        </div>
+                        <span style="font-size:.68rem;color:#8E8EA0;width:42px;text-align:right;flex-shrink:0;">${(d.demand/1000).toFixed(1)}L</span>
+                    </div>`;
+                }).join('');
+            }
+            analyticsLoaded = true;
+        } catch(e) { console.log('Settings analytics error:', e); }
+    }
+    {% endif %}
+
+    // ════ Delete Account ════
+    function confirmDeleteAccount() {
+        if (confirm('Are you sure you want to permanently delete your account? This cannot be undone.')) {
+            fetch('/delete_account', { method: 'POST', headers: {'Content-Type': 'application/json'} })
+                .then(r => r.json())
+                .then(d => { if (d.success) window.location.href = '/login'; else alert('Error: ' + (d.error || 'Could not delete account')); })
+                .catch(() => alert('Network error. Please try again.'));
+        }
+    }
+
+    // ════ Admin tab switcher (called from nav dropdown) ════
+    function adminTab(id) {
+        if (typeof showPage === 'function') {
+            showPage(id);
+        } else {
+            window.location.href = '/admin_dashboard';
+        }
+    }
+
+    // ════ Hospital tab switcher ════
+    function hospitalTab(id) {
+        if (typeof showHospitalPage === 'function') {
+            showHospitalPage(id);
+        } else {
+            window.location.href = '/hospital_dashboard';
+        }
+    }
+
+    // ════ Donor tab switcher ════
+    function donorTab(id) {
+        if (typeof showDonorPage === 'function') {
+            showDonorPage(id);
+        } else {
+            window.location.href = '/donor_dashboard';
+        }
+    }
+
+    // Close notif dropdown on outside click
+    document.addEventListener('click', (e) => {
+        const d = document.getElementById('notifDropdown');
+        if (d && !e.target.closest('.notif-bell-wrap')) d.classList.remove('open');
+    });
+
+    // ════ Nav smooth scroll ════
+    function navScrollTo(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const navH = document.getElementById('navbar')?.offsetHeight || 64;
+        const top  = el.getBoundingClientRect().top + window.scrollY - navH - 12;
+        window.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    // ════ Flash auto-dismiss (5 seconds) ════
+    document.addEventListener('DOMContentLoaded', () => {
+        const flashes = document.querySelectorAll('.flash-message');
+        flashes.forEach(f => {
+            setTimeout(() => {
+                f.classList.add('fade-out');
+                setTimeout(() => { if (f.parentNode) f.parentNode.removeChild(f); }, 500);
+            }, 5000);
+        });
+    });
+
+    // ════════════════════════════════════════════
+    //  THEME SWITCHER
+    // ════════════════════════════════════════════
+    const THEME_MAP = {
+        glassmorphism: "{{ url_for('static', filename='css/theme-glassmorphism.css') }}",
+        neon:          "{{ url_for('static', filename='css/theme-neon.css') }}",
+        luxury:        "{{ url_for('static', filename='css/theme-luxury.css') }}",
+        bento:         "{{ url_for('static', filename='css/theme-bento.css') }}",
+        aurora:        "{{ url_for('static', filename='css/theme-aurora.css') }}",
+        obsidian:      "{{ url_for('static', filename='css/theme-obsidian.css') }}",
+        sakura:        "{{ url_for('static', filename='css/theme-sakura.css') }}",
+        terminal:      "{{ url_for('static', filename='css/theme-terminal.css') }}",
+        default:       ""
+    };
+
+    const THEME_COLORS = {
+        glassmorphism: 'rgba(192,21,42,0.35)',
+        neon:          'rgba(255,23,68,0.50)',
+        luxury:        'rgba(176,18,38,0.30)',
+        bento:         'rgba(192,21,42,0.35)',
+        aurora:        'rgba(79,70,229,0.60)',
+        obsidian:      'rgba(201,169,110,0.60)',
+        sakura:        'rgba(194,96,122,0.60)',
+        terminal:      'rgba(0,255,65,0.60)',
+        default:       'rgba(255,255,255,0.10)'
+    };
+
+    function applyTheme(name) {
+        const link = document.getElementById('theme-stylesheet');
+        if (link) link.href = THEME_MAP[name] || '';
+
+        // Set data-theme attribute for CSS selectors
+        if (name && name !== 'default') document.documentElement.setAttribute('data-theme', name);
+        else document.documentElement.removeAttribute('data-theme');
+
+        // Save preference
+        if (name === 'default') localStorage.removeItem('lifeflow_theme');
+        else localStorage.setItem('lifeflow_theme', name);
+
+        // Update all button states
+        Object.keys(THEME_MAP).forEach(t => {
+            const btn = document.getElementById('theme-btn-' + t);
+            if (!btn) return;
+            if (t === name) {
+                btn.style.border = '2px solid ' + (THEME_COLORS[t] || 'rgba(192,21,42,0.5)');
+                btn.style.background = 'rgba(192,21,42,0.10)';
+                btn.style.boxShadow = '0 0 12px rgba(192,21,42,0.15)';
+            } else {
+                btn.style.border = '1px solid rgba(255,255,255,0.10)';
+                btn.style.background = 'rgba(255,255,255,0.03)';
+                btn.style.boxShadow = 'none';
+            }
+        });
+
+        // Ripple feedback
+        showThemeToast(name);
+    }
+
+    function showThemeToast(name) {
+        let toast = document.getElementById('theme-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'theme-toast';
+            toast.style.cssText = `
+                position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+                background:rgba(20,20,26,0.95); border:1px solid rgba(192,21,42,0.35);
+                border-radius:50px; padding:10px 22px; font-size:0.82rem; font-weight:600;
+                color:#F2F2F5; z-index:99999; opacity:0;
+                transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+                backdrop-filter:blur(20px); box-shadow:0 8px 32px rgba(0,0,0,0.4);
+                pointer-events:none; white-space:nowrap;
+            `;
+            document.body.appendChild(toast);
+        }
+        const labels = { glassmorphism:'🔮 Glassmorphism', neon:'⚡ Neon / Cyberpunk', luxury:'🪄 Luxury Minimal', bento:'⬛ Bento Grid', aurora:'🌌 Aurora', obsidian:'✨ Obsidian', sakura:'🌸 Sakura', terminal:'💻 Terminal', default:'↩ Default Theme' };
+        toast.textContent = labels[name] + ' applied';
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(10px)';
+        }, 2200);
+    }
+
+    // Restore saved theme on page load
+    (function() {
+        const saved = localStorage.getItem('lifeflow_theme');
+        if (saved && THEME_MAP[saved]) {
+            const link = document.getElementById('theme-stylesheet');
+            if (link) link.href = THEME_MAP[saved];
+            document.documentElement.setAttribute('data-theme', saved);
+            // Highlight active button after DOM ready
+            document.addEventListener('DOMContentLoaded', () => applyTheme(saved));
+        }
+    })();
+    </script>
+</body>
+</html>

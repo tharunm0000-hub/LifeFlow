@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block title %}Hospital Dashboard — LifeFlow{% endblock %}
+{% block head %}
+<style>
+.page-section        { display: none; padding: 1.25rem 0 2rem; }
+.page-section.active { display: block; }
+
+.avail-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:8px;font-size:.78rem;font-weight:700;border:1px solid;}
+.avail-good{background:rgba(27,184,106,.1);border-color:rgba(27,184,106,.3);color:var(--success);}
+.avail-low{background:rgba(240,151,10,.1);border-color:rgba(240,151,10,.3);color:var(--warning);}
+.avail-none{background:rgba(232,25,47,.1);border-color:rgba(232,25,47,.3);color:var(--error);}
+.priority-badge-c{background:rgba(232,25,47,.15);border:1px solid rgba(232,25,47,.4);color:#E8192F;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:700;}
+.priority-badge-u{background:rgba(240,151,10,.15);border:1px solid rgba(240,151,10,.4);color:#F0970A;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:700;}
+.priority-badge-n{background:rgba(142,142,160,.1);border:1px solid rgba(142,142,160,.3);color:#8E8EA0;padding:2px 8px;border-radius:999px;font-size:.7rem;}
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ══ OVERVIEW ══ #}
+<div class="page-section" id="page-overview">
+
+  <div class="profile-card">
+    <div class="profile-card__bg"><div class="profile-card__drops"><span></span><span></span><span></span><span></span></div></div>
+    <div class="profile-card__body">
+      <div class="profile-header">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar-pulse"></div>
+          <div class="profile-avatar">🏥</div>
+          <div class="profile-avatar-status"></div>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">{{ hospital_name }}</h1>
+          <div class="profile-role-badge">🏥 Verified Blood Request Facility</div>
+          <div class="profile-email">✉ {{ hospital_email }}</div>
+        </div>
+      </div>
+      <div class="profile-stats-row">
+        <div class="pstat"><div class="pstat__icon">📋</div><div class="pstat__val" id="h-stat-total">{{ requests | length }}</div><div class="pstat__lbl">Total Requests</div></div>
+        <div class="pstat"><div class="pstat__icon">✅</div><div class="pstat__val" id="h-stat-approved" style="color:var(--success);">{{ requests | selectattr('status','equalto','Approved') | list | length }}</div><div class="pstat__lbl">Approved</div></div>
+        <div class="pstat"><div class="pstat__icon">⏳</div><div class="pstat__val" id="h-stat-pending" style="color:#F0970A;">{{ requests | selectattr('status','equalto','Pending') | list | length }}</div><div class="pstat__lbl">Pending</div></div>
+        <div class="pstat"><div class="pstat__icon">❌</div><div class="pstat__val" id="h-stat-rejected" style="color:var(--error);">{{ requests | selectattr('status','equalto','Rejected') | list | length }}</div><div class="pstat__lbl">Rejected</div></div>
+      </div>
+      <div class="profile-meta">
+        {% if hospital_contact %}<div class="profile-meta-chip"><span class="profile-meta-chip__icon">📞</span><span class="profile-meta-chip__label">Contact</span><span class="profile-meta-chip__val">{{ hospital_contact }}</span></div>{% endif %}
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">🩸</span><span class="profile-meta-chip__label">Blood Groups</span><span class="profile-meta-chip__val">{{ availability | length }} types</span></div>
+        <div class="profile-meta-chip"><span class="profile-meta-chip__icon">✅</span><span class="profile-meta-chip__label">Status</span><span class="profile-meta-chip__val" style="color:var(--success);">Verified</span></div>
+      </div>
+      <div class="profile-divider"></div>
+      <div class="profile-actions">
+        <button class="profile-action-btn" onclick="showHospitalPage('new-request')"><span class="pa-icon">🩸</span>Request Blood</button>
+        <button class="profile-action-btn" onclick="showHospitalPage('history')"><span class="pa-icon">📋</span>My Requests</button>
+        <button class="profile-action-btn" onclick="showHospitalPage('availability')"><span class="pa-icon">📊</span>Blood Stock</button>
+        <button class="profile-action-btn" onclick="showHospitalPage('donor-requests')"><span class="pa-icon">🫀</span>Donor Requests</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{# ══ NEW REQUEST ══ #}
+<div class="page-section" id="page-new-request">
+  <div class="grid grid--2 section-gap" style="align-items:start;">
+    <div class="card">
+      <div class="card-header"><div class="card-title"><div class="card-title-icon">🩸</div>Submit Blood Request</div></div>
+      <div class="card-body">
+        <div style="margin-bottom:1.25rem;">
+          <div style="font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Live Stock — Click to Select</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            {% for bg, ml in availability.items() %}
+            <div class="avail-chip {% if ml > 1000 %}avail-good{% elif ml > 0 %}avail-low{% else %}avail-none{% endif %}"
+                 onclick="document.querySelector('[name=blood_group]').value='{{ bg }}';updateVolPreview('{{ bg }}');" style="cursor:pointer;">
+              <span>{{ bg }}</span><span style="font-weight:400;font-size:.72rem;opacity:.8;">{{ ml }}ml</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <form method="POST" action="/request_blood">
+          <div class="form-group">
+            <label class="form-label">Blood Group</label>
+            <select class="form-select" name="blood_group" id="req-bg" onchange="updateVolPreview(this.value)" required>
+              <option value="" disabled selected>Select blood group</option>
+              {% for bg, ml in availability.items() %}
+              <option value="{{ bg }}">{{ bg }} — {{ ml }}ml available</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div id="stock-preview" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;font-size:.82rem;"></div>
+          <div class="form-group">
+            <label class="form-label">Volume Required (ml)</label>
+            <input class="form-input" type="number" name="volume" placeholder="e.g. 1000" min="100" step="100" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority Level</label>
+            <select class="form-select" name="priority">
+              <option value="Normal">🟢 Normal</option>
+              <option value="Urgent">🟡 Urgent</option>
+              <option value="Critical">🔴 Critical</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">🩸 Submit Request on behalf of {{ hospital_name }}</button>
+        </form>
+        <div style="margin-top:1.25rem;padding:12px 16px;background:rgba(192,21,42,.07);border:1px solid var(--border-accent);border-radius:10px;">
+          <div style="font-size:.7rem;font-weight:700;color:var(--crimson-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;">📧 Automatic Donor Alert</div>
+          <p style="font-size:.8rem;color:var(--text-secondary);margin:0;line-height:1.55;">Every blood request automatically emails all eligible donors with matching blood type.</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="info-panel" style="margin-bottom:1.5rem;">
+        <div class="info-panel__heading">How Requests Work</div>
+        <div class="check-list">
+          <div class="check-item"><span class="check-item__icon" style="background:rgba(192,21,42,.15);color:var(--crimson);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0;">1</span><span><strong>Submit Request</strong> — Select blood group, volume, and priority level</span></div>
+          <div class="check-item"><span class="check-item__icon" style="background:rgba(192,21,42,.15);color:var(--crimson);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0;">2</span><span><strong>Admin Review</strong> — Admin checks available stock and approves or rejects</span></div>
+          <div class="check-item"><span class="check-item__icon" style="background:rgba(192,21,42,.15);color:var(--crimson);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0;">3</span><span><strong>Approval & Dispatch</strong> — Blood is allocated from inventory</span></div>
+          <div class="check-item"><span class="check-item__icon" style="background:rgba(192,21,42,.15);color:var(--crimson);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0;">4</span><span><strong>Critical requests</strong> are shown first in the admin queue</span></div>
+        </div>
+      </div>
+      <div class="info-panel">
+        <div class="info-panel__heading">Priority Guide</div>
+        <div class="check-list">
+          <div class="check-item"><span class="priority-badge-n">Normal</span><span style="margin-left:8px;">Elective procedures, planned surgeries</span></div>
+          <div class="check-item"><span class="priority-badge-u">Urgent</span><span style="margin-left:8px;">Time-sensitive cases, within 24 hours</span></div>
+          <div class="check-item"><span class="priority-badge-c">Critical</span><span style="margin-left:8px;">Life-threatening emergencies, immediate need</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ AVAILABILITY ══ #}
+<div class="page-section" id="page-availability">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">🩸</div>Blood Availability</div>
+      <button class="btn btn--primary btn--sm" onclick="showHospitalPage('new-request')">+ Submit Request</button>
+    </div>
+    <div class="card-body">
+      <div class="grid grid--4">
+        {% for bg, ml in availability.items() %}
+        {% set pct = [ml / 5000 * 100, 100] | min %}
+        <div class="stat-card">
+          <div class="d-flex items-center justify-between" style="margin-bottom:10px;">
+            <div class="blood-badge">{{ bg }}</div>
+            <span style="font-size:.7rem;{% if ml == 0 %}color:var(--error);{% elif ml < 500 %}color:var(--error);{% elif ml > 3000 %}color:var(--success);{% else %}color:var(--warning);{% endif %}font-weight:700;">
+              {% if ml == 0 %}Out of Stock{% elif ml < 500 %}⚠ Low{% elif ml > 3000 %}✓ Good{% else %}~ OK{% endif %}
+            </span>
+          </div>
+          <div class="stat-card__value">{{ ml }}</div>
+          <div class="stat-card__sub">ml available</div>
+          <div class="progress-bar" style="margin-top:8px;">
+            <div class="progress-bar__fill {% if ml < 500 %}progress-bar__fill--low{% elif ml > 3000 %}progress-bar__fill--high{% else %}progress-bar__fill--medium{% endif %}" style="width:{{ pct }}%;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ══ HISTORY ══ #}
+<div class="page-section" id="page-history">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">📅</div>Request History & Approval Log</div>
+      <span class="badge badge--neutral">{{ requests | length }} total</span>
+    </div>
+    <div class="table-wrap">
+      {% if requests %}
+      <table class="table">
+        <thead><tr><th>#</th><th>Blood Group</th><th>Volume</th><th>Priority</th><th>Date Submitted</th><th>Status</th><th>Approved By</th><th>Processed At</th></tr></thead>
+        <tbody>
+          {% for r in requests %}
+          <tr>
+            <td class="td--mono">#{{ r.request_id }}</td>
+            <td><span class="blood-badge--sm">{{ r.blood_group }}</span></td>
+            <td>{{ r.quantity_needed_ml }} ml</td>
+            <td>{% if r.priority=='Critical' %}<span class="priority-badge-c">🔴 Critical</span>
+                {% elif r.priority=='Urgent' %}<span class="priority-badge-u">🟡 Urgent</span>
+                {% else %}<span class="priority-badge-n">Normal</span>{% endif %}</td>
+            <td class="td--sm">{{ r.request_date.strftime('%d %b %Y, %H:%M') if r.request_date else '—' }}</td>
+            <td>{% if r.status=='Approved' %}<span class="badge badge--approved">✓ Approved</span>
+                {% elif r.status=='Rejected' %}<span class="badge badge--rejected">✕ Rejected</span>
+                {% else %}<span class="badge badge--pending">⏳ Pending</span>{% endif %}</td>
+            <td>{% if r.approved_by_name %}<span style="font-size:.82rem;color:var(--text-primary);">👤 {{ r.approved_by_name }}</span>{% else %}<span style="color:var(--text-muted);">—</span>{% endif %}</td>
+            <td class="td--sm">{% if r.processed_at %}{{ r.processed_at.strftime('%d %b %Y, %H:%M') }}{% else %}<span style="color:var(--text-muted);">—</span>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">📭</div><div class="empty-state__title">No requests yet</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# ══ DONOR REQUESTS ══ #}
+<div class="page-section" id="page-donor-requests">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title"><div class="card-title-icon">🫀</div>Donor Blood Requests</div>
+      <span class="badge badge--info">Community Need</span>
+    </div>
+    <div class="table-wrap">
+      {% if donor_requests %}
+      <table class="table">
+        <thead><tr><th>#</th><th>Donor Name</th><th>Blood Group</th><th>Volume</th><th>Priority</th><th>Reason</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for r in donor_requests %}
+          <tr>
+            <td class="td--mono">#{{ r.request_id }}</td>
+            <td class="td--primary">🫀 {{ r.donor_name }}</td>
+            <td><span class="blood-badge--sm">{{ r.blood_group }}</span></td>
+            <td>{{ r.quantity_needed_ml }} ml</td>
+            <td>{% if r.priority=='Critical' %}<span class="priority-badge-c">🔴 Critical</span>
+                {% elif r.priority=='Urgent' %}<span class="priority-badge-u">🟡 Urgent</span>
+                {% else %}<span class="priority-badge-n">Normal</span>{% endif %}</td>
+            <td class="td--sm">{{ r.reason or '—' }}</td>
+            <td class="td--sm">{{ r.request_date.strftime('%d %b %Y, %H:%M') if r.request_date else '—' }}</td>
+            <td>{% if r.status=='Approved' %}<span class="badge badge--approved">✓ Approved</span>
+                {% elif r.status=='Rejected' %}<span class="badge badge--rejected">✕ Rejected</span>
+                {% else %}<span class="badge badge--pending">⏳ Pending</span>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state"><div class="empty-state__icon">🫀</div><p class="empty-state__text">No donor blood requests at this time.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+const avail = {{ availability | tojson }};
+function updateVolPreview(bg) {
+  const el = document.getElementById('stock-preview');
+  if (!bg) { el.style.display='none'; return; }
+  const ml = avail[bg] || 0;
+  if (ml > 1000) {
+    el.style.cssText='display:block;margin-bottom:12px;padding:10px 14px;background:rgba(27,184,106,.08);border:1px solid rgba(27,184,106,.25);border-radius:8px;font-size:.82rem;color:var(--success);';
+    el.innerHTML=`✓ Good stock available: <b>${ml} ml</b> of ${bg}`;
+  } else if (ml > 0) {
+    el.style.cssText='display:block;margin-bottom:12px;padding:10px 14px;background:rgba(240,151,10,.08);border:1px solid rgba(240,151,10,.25);border-radius:8px;font-size:.82rem;color:var(--warning);';
+    el.innerHTML=`⚠ Low stock: only <b>${ml} ml</b> of ${bg} available`;
+  } else {
+    el.style.cssText='display:block;margin-bottom:12px;padding:10px 14px;background:rgba(232,25,47,.08);border:1px solid rgba(232,25,47,.25);border-radius:8px;font-size:.82rem;color:var(--error);';
+    el.innerHTML=`✕ <b>${bg} is currently out of stock</b>. Admin will be notified to source it.`;
+  }
+}
+function showHospitalPage(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('page-' + id);
+  if (el) {
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+function hospitalTab(id) { showHospitalPage(id); }
+
+// Show overview on initial load
+document.addEventListener('DOMContentLoaded', function() {
+  showHospitalPage('overview');
+});
+
+// ── Live stats via SocketIO ──
+(function() {
+  if (typeof io === 'undefined') return;
+  const socket = io();
+  socket.on('connect', () => {
+    socket.emit('join_hospital_room', { hospital_id: '{{ session.user_id }}' });
+  });
+
+  function pulseStat(el) {
+    if (!el) return;
+    el.closest('.pstat').style.transition = 'transform 0.2s, box-shadow 0.2s';
+    el.closest('.pstat').style.transform = 'scale(1.06)';
+    el.closest('.pstat').style.boxShadow = '0 0 18px rgba(192,21,42,0.35)';
+    setTimeout(() => {
+      el.closest('.pstat').style.transform = '';
+      el.closest('.pstat').style.boxShadow = '';
+    }, 500);
+  }
+
+  socket.on('hospital_stats_update', (data) => {
+    const map = {
+      'h-stat-total':    data.total,
+      'h-stat-approved': data.approved,
+      'h-stat-pending':  data.pending,
+      'h-stat-rejected': data.rejected
+    };
+    Object.entries(map).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val !== undefined && el.textContent !== String(val)) {
+        el.textContent = val;
+        pulseStat(el);
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

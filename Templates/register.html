@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeFlow — Register</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+  <style>
+    /* ── Role tab switcher ── */
+    .role-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 1.75rem;
+    }
+    .role-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      background: var(--bg-elevated);
+      cursor: pointer;
+      transition: all var(--t) var(--ease);
+      user-select: none;
+    }
+    .role-tab:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-hover);
+    }
+    .role-tab.active {
+      border-color: var(--crimson);
+      background: var(--crimson-glow);
+      box-shadow: 0 0 0 3px var(--crimson-glow);
+    }
+    .role-tab__icon { font-size: 1.5rem; }
+    .role-tab__label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    .role-tab.active .role-tab__label { color: var(--crimson-light); }
+
+    /* ── Panel toggle ── */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+  </style>
+</head>
+<body>
+<div class="register-page">
+  <div class="register-wrap">
+
+    <div class="register-header">
+      <a href="/login" class="register-header__brand">
+        <div class="register-header__brand-icon">🩸</div>
+        <span class="register-header__brand-name">Life<em>Flow</em></span>
+      </a>
+      <h1 class="register-header__title">Create an Account</h1>
+      <p class="register-header__sub">Choose your role to get started</p>
+    </div>
+
+    <div class="register-card">
+
+      {% if error %}
+      <div class="form-alert form-alert--error">
+        <span class="form-alert__icon">⚠</span>
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <!-- ── Role Selector ── -->
+      <div class="role-tabs">
+        <div class="role-tab active" id="tab-donor" onclick="switchRole('donor')">
+          <span class="role-tab__icon">🫀</span>
+          <span class="role-tab__label">Blood Donor</span>
+        </div>
+        <div class="role-tab" id="tab-hospital" onclick="switchRole('hospital')">
+          <span class="role-tab__icon">🏥</span>
+          <span class="role-tab__label">Hospital</span>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           DONOR REGISTRATION FORM
+      ══════════════════════════════════════ -->
+      <div class="form-panel active" id="panel-donor">
+        <div class="eligibility-note">
+          <span class="eligibility-note__icon">✓</span>
+          <span>Donors must be at least 18 years old and weigh a minimum of 50 kg to be eligible.</span>
+        </div>
+
+        <form method="POST" action="/register">
+          <input type="hidden" name="role" value="Donor">
+
+          <div class="form-section">
+            <div class="form-section__label">
+              <div class="form-section__dot"></div>
+              Account Information
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="donor_name">Full Name</label>
+              <input class="form-input" type="text" id="donor_name" name="name"
+                     placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="donor_contact">Contact Number</label>
+              <input class="form-input" type="text" id="donor_contact" name="contact"
+                     placeholder="+91 XXXXX XXXXX" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="donor_email">Email Address</label>
+              <input class="form-input" type="email" id="donor_email" name="email"
+                     placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="donor_password">Password</label>
+              <input class="form-input" type="password" id="donor_password" name="password"
+                     placeholder="Create a password" required>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section__label">
+              <div class="form-section__dot"></div>
+              Medical Information
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="blood_group">Blood Group</label>
+              <select class="form-select" id="blood_group" name="blood_group" required>
+                <option value="" disabled selected>Select blood group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="age">Age (years)</label>
+              <input class="form-input" type="number" id="age" name="age"
+                     placeholder="e.g. 28" min="18" max="65" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="max-width:50%;">
+            <label class="form-label" for="weight">Weight (kg)</label>
+            <input class="form-input" type="number" id="weight" name="weight"
+                   placeholder="e.g. 70" min="50" step="0.1" required>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--lg btn--full" style="margin-top:1.25rem;">
+            Create Donor Account →
+          </button>
+        </form>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           HOSPITAL REGISTRATION FORM
+      ══════════════════════════════════════ -->
+      <div class="form-panel" id="panel-hospital">
+        <div class="eligibility-note" style="background:rgba(59,159,232,0.06);border-color:rgba(59,159,232,0.2);color:rgba(59,159,232,0.9);">
+          <span class="eligibility-note__icon">🏥</span>
+          <span>Hospital accounts can submit blood requests that will be reviewed and fulfilled by the admin.</span>
+        </div>
+
+        <form method="POST" action="/register_hospital">
+          <div class="form-section">
+            <div class="form-section__label">
+              <div class="form-section__dot"></div>
+              Hospital Details
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="hospital_name">Hospital Name</label>
+            <input class="form-input" type="text" id="hospital_name" name="hospital_name"
+                   placeholder="e.g. City General Hospital" required>
+            <div class="form-hint">Enter the full official name of your institution.</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="hospital_contact">Contact Number</label>
+              <input class="form-input" type="text" id="hospital_contact" name="contact"
+                     placeholder="+91 XXXXX XXXXX" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hospital_email">Official Email</label>
+              <input class="form-input" type="email" id="hospital_email" name="email"
+                     placeholder="admin@hospital.com" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="hospital_password">Password</label>
+            <input class="form-input" type="password" id="hospital_password" name="password"
+                   placeholder="Create a secure password" required>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--lg btn--full" style="margin-top:1.25rem;">
+            Register Hospital →
+          </button>
+        </form>
+      </div>
+
+    </div><!-- /register-card -->
+
+    <div class="register-footer">
+      Already have an account? <a href="/login">Sign in here</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchRole(role) {
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + role).classList.add('active');
+    document.getElementById('panel-' + role).classList.add('active');
+  }
+</script>
+</body>
+</html>

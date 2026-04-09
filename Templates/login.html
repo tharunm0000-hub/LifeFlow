@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeFlow — Sign In</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+</head>
+<body>
+<div class="auth-page">
+
+    <!-- LEFT DECORATIVE PANEL -->
+    <div class="auth-panel">
+        <div class="auth-panel__grid"></div>
+        <div class="auth-panel__dots">
+            <div class="auth-dot" style="width:70px;height:70px;left:8%;animation-duration:14s;animation-delay:0s;"></div>
+            <div class="auth-dot" style="width:35px;height:35px;left:28%;animation-duration:10s;animation-delay:2.5s;"></div>
+            <div class="auth-dot" style="width:90px;height:90px;left:58%;animation-duration:17s;animation-delay:5s;"></div>
+            <div class="auth-dot" style="width:22px;height:22px;left:78%;animation-duration:9s;animation-delay:1s;"></div>
+            <div class="auth-dot" style="width:50px;height:50px;left:44%;animation-duration:13s;animation-delay:7s;"></div>
+        </div>
+
+        <a href="/login" class="auth-brand">
+            <div class="auth-brand__icon">🩸</div>
+            <span class="auth-brand__name">Life<em>Flow</em></span>
+        </a>
+
+        <div class="auth-panel__content">
+            <div class="auth-panel__eyebrow"></div>
+            <h2 class="auth-panel__headline">Every drop<br>counts. <em>Give</em><br>life today.</h2>
+            <p class="auth-panel__desc">A unified platform connecting donors, hospitals, and administrators — ensuring the right blood reaches those who need it most.</p>
+            <div class="auth-stats">
+                <div class="auth-stat">
+                    <div class="auth-stat__value">8+</div>
+                    <div class="auth-stat__label">Blood Types</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat__value">24/7</div>
+                    <div class="auth-stat__label">Availability</div>
+                </div>
+                <div class="auth-stat">
+                    <div class="auth-stat__value">3</div>
+                    <div class="auth-stat__label">User Roles</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-panel__footer">&copy; 2025 LifeFlow Blood Bank Management System</div>
+    </div>
+
+    <!-- RIGHT FORM PANEL -->
+    <div class="auth-form-side">
+        <div class="auth-form-wrap">
+            <h1 class="auth-form-title">Welcome back</h1>
+            <p class="auth-form-subtitle">Sign in to access your dashboard</p>
+
+            {% if error %}
+            <div class="form-alert form-alert--error">
+                <span class="form-alert__icon">⚠</span>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input class="form-input" type="email" id="email" name="email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-input" type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="role">Login As</label>
+                    <select class="form-select" id="role" name="role" required>
+                        <option value="" disabled selected>Select your role</option>
+                        <option value="Admin">Administrator</option>
+                        <option value="Donor">Blood Donor</option>
+                        <option value="Hospital">Hospital</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn--primary btn--lg btn--full" style="margin-top:0.5rem;">
+                    Sign In →
+                </button>
+            </form>
+
+            <div class="auth-divider"><span>New to LifeFlow?</span></div>
+            <div class="auth-link-row">Register as a donor — <a href="/register">Create account</a></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
