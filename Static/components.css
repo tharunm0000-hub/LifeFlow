@@ -1,0 +1,546 @@
+/* ============================================================
+   LIFEFLOW BLOOD BANK — COMPONENTS
+   components.css
+   ============================================================ */
+
+/* ══════════════════════════════════════════
+   CARDS
+══════════════════════════════════════════ */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color var(--transition);
+}
+
+.card:hover { border-color: rgba(255, 255, 255, 0.10); }
+
+.card--accent {
+    border-color: var(--border-accent);
+    background: linear-gradient(135deg, rgba(192, 21, 42, 0.06), transparent 60%), var(--bg-card);
+}
+
+.card-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.card-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+}
+
+.card-title-icon {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    background: var(--crimson-glow);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.card-body { padding: 1.5rem; }
+.card-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+
+/* ══════════════════════════════════════════
+   STAT CARDS
+══════════════════════════════════════════ */
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color var(--transition), transform var(--transition);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--crimson), var(--crimson-deep), transparent);
+    opacity: 0.8;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 10% 0%, rgba(192, 21, 42, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-3px);
+}
+
+.stat-card__label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.8rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-card__value {
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-card__value--success { color: var(--success); }
+.stat-card__value--warning { color: var(--warning); }
+.stat-card__value--error   { color: var(--error); }
+
+.stat-card__sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-card__icon {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.5rem;
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* ══════════════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════════════ */
+.progress-bar {
+    background: var(--bg-elevated);
+    border-radius: var(--radius-full);
+    height: 6px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-bar__fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--crimson-deep), var(--crimson-light));
+    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-bar__fill--low    { background: linear-gradient(90deg, #A01020, var(--error)); }
+.progress-bar__fill--medium { background: linear-gradient(90deg, #C07A00, var(--warning)); }
+.progress-bar__fill--high   { background: linear-gradient(90deg, #0E8A4E, var(--success)); }
+
+
+/* ══════════════════════════════════════════
+   BLOOD GROUP BADGE
+══════════════════════════════════════════ */
+.blood-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background: var(--crimson-glow);
+    border: 1px solid var(--border-accent);
+    color: var(--crimson-light);
+    font-weight: 800;
+    font-size: 0.78rem;
+    border-radius: var(--radius);
+    letter-spacing: 0.02em;
+    font-family: var(--font-body);
+    transition: background var(--transition), border-color var(--transition);
+}
+
+.blood-badge:hover {
+    background: rgba(192, 21, 42, 0.25);
+    border-color: rgba(192, 21, 42, 0.5);
+}
+
+.blood-badge--sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 22px;
+    padding: 0 8px;
+    background: var(--crimson-glow);
+    border: 1px solid var(--border-accent);
+    color: var(--crimson-light);
+    font-weight: 700;
+    font-size: 0.72rem;
+    border-radius: 5px;
+    letter-spacing: 0.03em;
+}
+
+
+/* ══════════════════════════════════════════
+   STATUS BADGES
+══════════════════════════════════════════ */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.badge::before { font-size: 0.6rem; }
+
+.badge--pending {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border: 1px solid var(--warning-border);
+}
+
+.badge--approved {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success-border);
+}
+
+.badge--rejected {
+    background: var(--error-bg);
+    color: var(--error);
+    border: 1px solid var(--error-border);
+}
+
+.badge--info {
+    background: var(--info-bg);
+    color: var(--info);
+    border: 1px solid rgba(59, 159, 232, 0.25);
+}
+
+.badge--neutral {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+
+/* ══════════════════════════════════════════
+   TABLE
+══════════════════════════════════════════ */
+.table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead th {
+    background: var(--bg-elevated);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.table thead th:first-child { border-radius: 0; }
+
+.table tbody td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    vertical-align: middle;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.table tbody tr:last-child td { border-bottom: none; }
+
+.table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.025);
+    color: var(--text-primary);
+}
+
+.table--striped tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.td--primary {
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+}
+
+.td--mono {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted) !important;
+}
+
+.td--sm { font-size: 0.82rem; }
+
+
+/* ══════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3.5rem 1rem;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.empty-state__icon {
+    font-size: 2.8rem;
+    opacity: 0.6;
+    filter: grayscale(30%);
+}
+
+.empty-state__title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.empty-state__text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    max-width: 280px;
+}
+
+
+/* ══════════════════════════════════════════
+   FORECAST / ALERT BANNER
+══════════════════════════════════════════ */
+.alert-banner {
+    background: linear-gradient(135deg, rgba(192, 21, 42, 0.12), rgba(139, 14, 30, 0.06));
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-lg);
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: slideDown 0.4s ease;
+}
+
+.alert-banner__icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    animation: pulse 2s ease infinite;
+}
+
+.alert-banner__label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--crimson-light);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+}
+
+.alert-banner__text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.alert-banner__text strong { color: var(--text-primary); }
+
+
+/* ══════════════════════════════════════════
+   INFO PANEL (Process steps, guidelines)
+══════════════════════════════════════════ */
+.info-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+}
+
+.info-panel__heading {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.step-list { display: flex; flex-direction: column; gap: 1rem; }
+
+.step-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.step-item__num {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-item__num--crimson {
+    background: var(--crimson-glow);
+    border: 1px solid var(--border-accent);
+    color: var(--crimson-light);
+}
+
+.step-item__num--warning {
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    color: var(--warning);
+}
+
+.step-item__num--success {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success);
+}
+
+.step-item__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.step-item__desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Checklist */
+.check-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.check-item {
+    display: flex;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.check-item__icon { color: var(--success); flex-shrink: 0; font-size: 0.9rem; }
+.check-item strong { color: var(--text-primary); }
+
+
+/* ══════════════════════════════════════════
+   DONOR PROFILE CARD
+══════════════════════════════════════════ */
+.donor-avatar {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    background: var(--crimson-glow);
+    border: 2px solid var(--border-accent);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    transition: transform var(--transition);
+}
+
+.donor-avatar:hover { transform: scale(1.05); }
+
+.donor-name {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.donor-role-tag {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Mini stat inside donor profile */
+.profile-stat {
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    border: 1px solid var(--border);
+    transition: border-color var(--transition);
+}
+
+.profile-stat:hover { border-color: var(--border-accent); }
+
+.profile-stat__label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+}
+
+.profile-stat__value {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.profile-stat__unit {
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    color: var(--text-muted);
+    margin-left: 2px;
+}

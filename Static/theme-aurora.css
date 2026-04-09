@@ -1,0 +1,480 @@
+/* ============================================================
+   LIFEFLOW — THEME: AURORA
+   Deep midnight navy with living iridescent aurora gradients
+   Fonts: Syne (display) + Outfit (body)
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+[data-theme="aurora"] {
+  --aurora-1: #4f46e5;   /* indigo */
+  --aurora-2: #7c3aed;   /* violet */
+  --aurora-3: #ec4899;   /* pink */
+  --aurora-4: #06b6d4;   /* cyan */
+  --aurora-5: #10b981;   /* emerald */
+  --aurora-blood: #ff6b8a;
+
+  /* Override base tokens */
+  --blood:         #ff6b8a;
+  --blood-mid:     #ff4d73;
+  --blood-light:   #ff8fa3;
+  --blood-pale:    rgba(255,107,138,0.12);
+  --blood-paler:   rgba(255,107,138,0.06);
+  --blood-border:  rgba(255,107,138,0.25);
+  --blood-glow:    rgba(255,107,138,0.20);
+
+  --bg:            #050714;
+  --bg-2:          #080c1a;
+  --surface:       rgba(15, 20, 45, 0.85);
+  --surface-2:     rgba(20, 28, 60, 0.90);
+  --surface-3:     rgba(30, 40, 80, 0.80);
+  --surface-4:     rgba(40, 55, 100, 0.70);
+
+  --border:        rgba(79,70,229,0.20);
+  --border-2:      rgba(79,70,229,0.35);
+  --border-accent: rgba(255,107,138,0.30);
+
+  --ink:           #f0f4ff;
+  --ink-2:         #c8d4f8;
+  --ink-3:         #8898cc;
+  --ink-4:         #5566aa;
+  --ink-5:         #3344888;
+
+  --green:        #10b981; --green-bg: rgba(16,185,129,0.12); --green-border: rgba(16,185,129,0.25); --green-text: #34d399;
+  --amber:        #f59e0b; --amber-bg: rgba(245,158,11,0.12); --amber-border: rgba(245,158,11,0.25); --amber-text: #fbbf24;
+  --rose:         #ff6b8a; --rose-bg:  rgba(255,107,138,0.12); --rose-border:  rgba(255,107,138,0.25); --rose-text:  #ff8fa3;
+  --sky:          #06b6d4; --sky-bg:   rgba(6,182,212,0.12); --sky-border:   rgba(6,182,212,0.25); --sky-text:   #22d3ee;
+
+  --font:         'Outfit', system-ui, sans-serif;
+  --font-display: 'Syne', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.40);
+  --shadow:    0 4px 20px rgba(0,0,0,0.50), 0 0 40px rgba(79,70,229,0.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.60), 0 0 80px rgba(79,70,229,0.12);
+  --shadow-blood: 0 4px 32px rgba(255,107,138,0.30);
+}
+
+/* ── Animated aurora background ── */
+[data-theme="aurora"] body {
+  background: #050714 !important;
+  font-family: 'Outfit', system-ui, sans-serif !important;
+  color: #f0f4ff !important;
+}
+
+[data-theme="aurora"] body::before {
+  content: '' !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  background:
+    radial-gradient(ellipse 120% 60% at 20% -10%, rgba(79,70,229,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 80% 10%, rgba(124,58,237,0.28) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 40% at 50% 100%, rgba(236,72,153,0.20) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 80% at 5% 50%, rgba(6,182,212,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 95% 60%, rgba(16,185,129,0.12) 0%, transparent 50%) !important;
+  animation: auroraShift 16s ease-in-out infinite alternate !important;
+  pointer-events: none !important;
+}
+
+@keyframes auroraShift {
+  0%   { opacity: 0.7; filter: blur(0px); }
+  33%  { opacity: 1; filter: blur(2px); }
+  66%  { opacity: 0.85; filter: blur(1px); }
+  100% { opacity: 1; filter: blur(0px); }
+}
+
+[data-theme="aurora"] body::after {
+  content: '' !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  background:
+    radial-gradient(ellipse 90% 45% at 70% 5%, rgba(6,182,212,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 55% at 30% 95%, rgba(79,70,229,0.22) 0%, transparent 50%) !important;
+  animation: auroraShift2 20s ease-in-out infinite alternate !important;
+  pointer-events: none !important;
+}
+
+@keyframes auroraShift2 {
+  0%   { opacity: 0.5; transform: scale(1); }
+  50%  { opacity: 0.9; transform: scale(1.05); }
+  100% { opacity: 0.6; transform: scale(0.98); }
+}
+
+[data-theme="aurora"] .app-shell,
+[data-theme="aurora"] .main-content,
+[data-theme="aurora"] .sidebar {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* ── Sidebar ── */
+[data-theme="aurora"] .sidebar {
+  background: rgba(8, 12, 26, 0.92) !important;
+  border-right: 1px solid rgba(79,70,229,0.25) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+[data-theme="aurora"] .sidebar-brand {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(79,70,229,0.20) !important;
+}
+
+[data-theme="aurora"] .sidebar-brand-name {
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 1.2rem !important;
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  letter-spacing: -0.02em !important;
+}
+
+[data-theme="aurora"] .sidebar-brand-drop {
+  filter: drop-shadow(0 0 8px rgba(255,107,138,0.6)) !important;
+}
+
+[data-theme="aurora"] .sidebar-nav-link {
+  color: #8898cc !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="aurora"] .sidebar-nav-link:hover,
+[data-theme="aurora"] .sidebar-nav-link.active {
+  background: rgba(79,70,229,0.20) !important;
+  color: #f0f4ff !important;
+  border-left: 2px solid #7c3aed !important;
+  box-shadow: inset 0 0 20px rgba(79,70,229,0.10) !important;
+}
+
+[data-theme="aurora"] .sidebar-nav-label {
+  color: #5566aa !important;
+  font-family: 'Syne', sans-serif !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="aurora"] .sidebar-user {
+  background: rgba(79,70,229,0.08) !important;
+  border: 1px solid rgba(79,70,229,0.20) !important;
+  border-radius: 10px !important;
+  margin: 8px 12px !important;
+}
+
+[data-theme="aurora"] .sidebar-avatar {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  box-shadow: 0 0 16px rgba(124,58,237,0.40) !important;
+  animation: avatarPulse 3s ease-in-out infinite !important;
+}
+
+@keyframes avatarPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(124,58,237,0.40); }
+  50%       { box-shadow: 0 0 24px rgba(124,58,237,0.70), 0 0 40px rgba(79,70,229,0.30); }
+}
+
+[data-theme="aurora"] .sidebar-user-name {
+  color: #f0f4ff !important;
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="aurora"] .sidebar-user-role {
+  color: #7c3aed !important;
+}
+
+/* ── Topbar / Navbar ── */
+[data-theme="aurora"] .topbar {
+  background: rgba(5,7,20,0.88) !important;
+  border-bottom: 1px solid rgba(79,70,229,0.20) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+[data-theme="aurora"] .topbar-title {
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #a78bfa, #f472b6) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ── Cards ── */
+[data-theme="aurora"] .card {
+  background: rgba(10, 15, 35, 0.80) !important;
+  border: 1px solid rgba(79,70,229,0.22) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-theme="aurora"] .card::before {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899, #06b6d4) !important;
+  height: 2px !important;
+  opacity: 0.8 !important;
+}
+
+[data-theme="aurora"] .card:hover {
+  border-color: rgba(124,58,237,0.45) !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.50), 0 0 40px rgba(79,70,229,0.15), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ── Stat cards ── */
+[data-theme="aurora"] .stat-card {
+  background: rgba(10, 15, 35, 0.80) !important;
+  border: 1px solid rgba(79,70,229,0.22) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+[data-theme="aurora"] .stat-card::before {
+  background: linear-gradient(90deg, #4f46e5, #ec4899) !important;
+  height: 2px !important;
+}
+
+[data-theme="aurora"] .stat-value {
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, #a78bfa, #f472b6) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ── Profile card ── */
+[data-theme="aurora"] .profile-card {
+  background: rgba(8, 12, 26, 0.90) !important;
+  border: 1px solid rgba(79,70,229,0.25) !important;
+  backdrop-filter: blur(20px) !important;
+  overflow: hidden !important;
+}
+
+[data-theme="aurora"] .profile-card::before {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 40%, #ec4899 70%, #06b6d4 100%) !important;
+  height: 4px !important;
+  opacity: 1 !important;
+}
+
+[data-theme="aurora"] .profile-avatar {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899) !important;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.30), 0 0 32px rgba(124,58,237,0.40) !important;
+}
+
+/* ── Buttons ── */
+[data-theme="aurora"] .btn--primary {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(79,70,229,0.40) !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+}
+
+[data-theme="aurora"] .btn--primary:hover {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  box-shadow: 0 6px 28px rgba(79,70,229,0.55), 0 0 40px rgba(124,58,237,0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+[data-theme="aurora"] .btn--danger {
+  background: linear-gradient(135deg, #be123c, #ff6b8a) !important;
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(255,107,138,0.35) !important;
+}
+
+[data-theme="aurora"] .btn--success {
+  background: linear-gradient(135deg, #059669, #10b981) !important;
+  box-shadow: 0 4px 20px rgba(16,185,129,0.35) !important;
+}
+
+/* ── Badges ── */
+[data-theme="aurora"] .badge--success  { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; border-color: rgba(16,185,129,0.30) !important; }
+[data-theme="aurora"] .badge--warning  { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; border-color: rgba(245,158,11,0.30) !important; }
+[data-theme="aurora"] .badge--danger   { background: rgba(255,107,138,0.15) !important; color: #ff8fa3 !important; border-color: rgba(255,107,138,0.30) !important; }
+[data-theme="aurora"] .badge--info     { background: rgba(6,182,212,0.15) !important; color: #22d3ee !important; border-color: rgba(6,182,212,0.30) !important; }
+[data-theme="aurora"] .badge--neutral  { background: rgba(79,70,229,0.15) !important; color: #a78bfa !important; border-color: rgba(79,70,229,0.30) !important; }
+
+/* ── Tables ── */
+[data-theme="aurora"] .table th {
+  background: rgba(79,70,229,0.12) !important;
+  color: #a78bfa !important;
+  font-family: 'Syne', sans-serif !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(79,70,229,0.25) !important;
+}
+
+[data-theme="aurora"] .table td {
+  color: #c8d4f8 !important;
+  border-bottom: 1px solid rgba(79,70,229,0.10) !important;
+}
+
+[data-theme="aurora"] .table tr:hover td {
+  background: rgba(79,70,229,0.08) !important;
+}
+
+/* ── Form inputs ── */
+[data-theme="aurora"] input,
+[data-theme="aurora"] select,
+[data-theme="aurora"] textarea {
+  background: rgba(8, 12, 26, 0.80) !important;
+  border: 1px solid rgba(79,70,229,0.30) !important;
+  color: #f0f4ff !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+[data-theme="aurora"] input:focus,
+[data-theme="aurora"] select:focus,
+[data-theme="aurora"] textarea:focus {
+  border-color: rgba(124,58,237,0.60) !important;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.15), 0 0 16px rgba(124,58,237,0.20) !important;
+  outline: none !important;
+}
+
+[data-theme="aurora"] label,
+[data-theme="aurora"] .form-label {
+  color: #8898cc !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+/* ── Progress bar ── */
+[data-theme="aurora"] .progress-bar__fill {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899) !important;
+  box-shadow: 0 0 8px rgba(124,58,237,0.40) !important;
+}
+
+/* ── Section headings ── */
+[data-theme="aurora"] .section-heading {
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 700 !important;
+  color: #f0f4ff !important;
+}
+
+[data-theme="aurora"] .section-heading::after {
+  background: linear-gradient(90deg, #4f46e5, #ec4899, transparent) !important;
+}
+
+/* ── Headings ── */
+[data-theme="aurora"] h1, [data-theme="aurora"] h2, [data-theme="aurora"] h3 {
+  font-family: 'Syne', sans-serif !important;
+  color: #f0f4ff !important;
+}
+
+[data-theme="aurora"] h4, [data-theme="aurora"] h5, [data-theme="aurora"] h6 {
+  font-family: 'Outfit', sans-serif !important;
+  color: #c8d4f8 !important;
+}
+
+/* ── Pstat grid ── */
+[data-theme="aurora"] .pstat {
+  background: rgba(10, 15, 35, 0.80) !important;
+  border: 1px solid rgba(79,70,229,0.22) !important;
+}
+
+[data-theme="aurora"] .pstat::before {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed) !important;
+}
+
+[data-theme="aurora"] .pstat-val {
+  font-family: 'Syne', sans-serif !important;
+  background: linear-gradient(135deg, #a78bfa, #f472b6) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ── Blood stock chips ── */
+[data-theme="aurora"] .blood-chip {
+  background: rgba(79,70,229,0.12) !important;
+  border: 1px solid rgba(124,58,237,0.30) !important;
+  color: #c8d4f8 !important;
+}
+
+[data-theme="aurora"] .blood-chip .type {
+  color: #a78bfa !important;
+  font-family: 'Syne', sans-serif !important;
+}
+
+/* ── Notif bell ── */
+[data-theme="aurora"] .notif-btn {
+  color: #8898cc !important;
+}
+
+[data-theme="aurora"] .notif-btn:hover {
+  color: #a78bfa !important;
+}
+
+[data-theme="aurora"] .notif-badge {
+  background: linear-gradient(135deg, #7c3aed, #ec4899) !important;
+  box-shadow: 0 0 8px rgba(236,72,153,0.50) !important;
+}
+
+/* ── Flash messages ── */
+[data-theme="aurora"] .flash-message {
+  backdrop-filter: blur(12px) !important;
+  border-radius: 10px !important;
+}
+
+/* ── Settings panel ── */
+[data-theme="aurora"] .settings-panel {
+  background: rgba(8, 12, 26, 0.96) !important;
+  border-left: 1px solid rgba(79,70,229,0.25) !important;
+  backdrop-filter: blur(24px) !important;
+}
+
+[data-theme="aurora"] .settings-panel-hdr {
+  border-bottom: 1px solid rgba(79,70,229,0.20) !important;
+}
+
+[data-theme="aurora"] .settings-section-title {
+  color: #5566aa !important;
+  font-family: 'Syne', sans-serif !important;
+  font-size: 0.65rem !important;
+  letter-spacing: 0.14em !important;
+}
+
+/* ── Chatbot ── */
+[data-theme="aurora"] .chat-window {
+  background: rgba(8, 12, 26, 0.95) !important;
+  border: 1px solid rgba(79,70,229,0.30) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+[data-theme="aurora"] .chat-fab {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  box-shadow: 0 4px 20px rgba(79,70,229,0.50) !important;
+}
+
+/* ── Scrollbar ── */
+[data-theme="aurora"] ::-webkit-scrollbar-thumb {
+  background: rgba(79,70,229,0.40) !important;
+}
+
+[data-theme="aurora"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(124,58,237,0.60) !important;
+}
+
+[data-theme="aurora"] ::-webkit-scrollbar-track {
+  background: rgba(8,12,26,0.50) !important;
+}
+
+/* ── Iridescent glow on active elements ── */
+[data-theme="aurora"] .btn--primary:focus,
+[data-theme="aurora"] .sidebar-nav-link.active {
+  outline: none !important;
+}
+
+/* ── Entrance animation ── */
+[data-theme="aurora"] .card,
+[data-theme="aurora"] .stat-card {
+  animation: auroraIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both !important;
+}
+
+@keyframes auroraIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}

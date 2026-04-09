@@ -1,0 +1,519 @@
+/* ============================================================
+   LIFEFLOW — THEME 3: ULTRA-MINIMAL LUXURY
+   Editorial typography · Razor-thin borders · Considered space
+   Luxury medical — like a premium Swiss watch meets a blood bank
+
+   HOW TO USE:
+   In base.html, add AFTER all other CSS links:
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-luxury.css') }}">
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500;600;700&display=swap');
+
+/* ══════════════════════════════════════════
+   OVERRIDE VARIABLES
+══════════════════════════════════════════ */
+:root {
+    --font-display:   'Cormorant Garamond', serif;
+    --font-body:      'Outfit', sans-serif;
+
+    --bg-dark:        #0C0C0E;
+    --bg-base:        #0F0F12;
+    --bg-card:        #131316;
+    --bg-elevated:    #1A1A1F;
+    --bg-hover:       #1F1F25;
+    --bg-overlay:     rgba(12, 12, 14, 0.94);
+
+    --border:         rgba(255, 255, 255, 0.06);
+    --border-soft:    rgba(255, 255, 255, 0.03);
+    --border-accent:  rgba(192, 21, 42, 0.22);
+    --border-strong:  rgba(255, 255, 255, 0.11);
+
+    --text-primary:   #EFEFEF;
+    --text-secondary: #888896;
+    --text-muted:     #484854;
+
+    --crimson:        #B01226;
+    --crimson-light:  #D41530;
+    --crimson-glow:   rgba(176, 18, 38, 0.10);
+
+    --radius-sm:      2px;
+    --radius:         4px;
+    --radius-md:      6px;
+    --radius-lg:      8px;
+    --radius-xl:      10px;
+    --radius-full:    2px;
+    --radius-card:    8px;
+
+    --transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ══════════════════════════════════════════
+   BODY — CLEAN
+══════════════════════════════════════════ */
+body {
+    background: var(--bg-dark) !important;
+    font-family: var(--font-body) !important;
+    font-weight: 300 !important;
+    letter-spacing: 0.01em !important;
+}
+
+body::before {
+    background:
+        radial-gradient(ellipse 60% 40% at 20% 0%, rgba(176, 18, 38, 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 100%, rgba(140, 10, 25, 0.05) 0%, transparent 60%) !important;
+}
+
+/* ══════════════════════════════════════════
+   NAVBAR — ULTRA-THIN
+══════════════════════════════════════════ */
+.navbar {
+    background: rgba(12, 12, 14, 0.96) !important;
+    backdrop-filter: blur(40px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: none !important;
+    height: 68px !important;
+}
+
+.navbar.scrolled {
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 24px rgba(0,0,0,0.3) !important;
+}
+
+.nav-brand-name {
+    font-family: 'Cormorant Garamond', serif !important;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+}
+
+.nav-brand-icon {
+    background: linear-gradient(160deg, #B01226, #7A0A1A) !important;
+    box-shadow: 0 2px 12px rgba(176, 18, 38, 0.3) !important;
+    border-radius: 6px !important;
+}
+
+.nav-role-badge {
+    background: transparent !important;
+    color: var(--text-muted) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    font-weight: 300 !important;
+    letter-spacing: 0.12em !important;
+}
+
+/* ══════════════════════════════════════════
+   CARDS — ULTRA-THIN BORDERS
+══════════════════════════════════════════ */
+.card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255, 255, 255, 0.055) !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: none !important;
+    transition: border-color var(--transition), background var(--transition) !important;
+    overflow: hidden !important;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(176, 18, 38, 0.30) 40%,
+        rgba(176, 18, 38, 0.15) 70%,
+        transparent 100%);
+    pointer-events: none;
+}
+
+.card:hover {
+    border-color: rgba(255, 255, 255, 0.10) !important;
+    background: #151518 !important;
+}
+
+.card-header {
+    padding: 1.4rem 1.75rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: transparent !important;
+}
+
+.card-title {
+    font-family: 'Cormorant Garamond', serif !important;
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.01em !important;
+    color: #E8E8E8 !important;
+}
+
+.card-title-icon {
+    background: rgba(176, 18, 38, 0.08) !important;
+    border: 1px solid rgba(176, 18, 38, 0.18) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+.card-body {
+    padding: 1.75rem !important;
+}
+
+/* ══════════════════════════════════════════
+   STAT CARDS — EDITORIAL
+══════════════════════════════════════════ */
+.stat-card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255, 255, 255, 0.055) !important;
+    border-radius: 6px !important;
+    padding: 1.6rem 1.75rem !important;
+    box-shadow: none !important;
+    transition: background var(--transition), border-color var(--transition) !important;
+}
+
+.stat-card::before {
+    background: linear-gradient(90deg, rgba(176,18,38,0.5), transparent) !important;
+    height: 1px !important;
+}
+
+.stat-card:hover {
+    background: #161619 !important;
+    border-color: rgba(255,255,255,0.09) !important;
+    transform: none !important;
+}
+
+.stat-card__label {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 300 !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 0.18em !important;
+    color: var(--text-muted) !important;
+}
+
+.stat-card__value {
+    font-family: 'Cormorant Garamond', serif !important;
+    font-size: 2.6rem !important;
+    font-weight: 500 !important;
+    color: var(--text-primary) !important;
+    line-height: 1 !important;
+    letter-spacing: -0.02em !important;
+}
+
+.stat-card__sub {
+    font-weight: 300 !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.10em !important;
+    color: var(--text-muted) !important;
+}
+
+/* ══════════════════════════════════════════
+   PROFILE CARD — LUXURY
+══════════════════════════════════════════ */
+.profile-card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+
+.profile-card__bg {
+    background: linear-gradient(160deg,
+        rgba(176, 18, 38, 0.12) 0%,
+        rgba(120, 10, 25, 0.05) 50%,
+        transparent 80%) !important;
+}
+
+/* Profile avatar — thin ring */
+.profile-avatar-wrap::after {
+    content: none;
+}
+
+/* ══════════════════════════════════════════
+   PROFILE ACTION BUTTONS — MINIMAL
+══════════════════════════════════════════ */
+.profile-action-btn {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 4px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 300 !important;
+    font-size: 0.78rem !important;
+    letter-spacing: 0.08em !important;
+    color: var(--text-secondary) !important;
+    transition: all var(--transition) !important;
+    padding: 8px 14px !important;
+}
+.profile-action-btn:hover {
+    background: rgba(176, 18, 38, 0.08) !important;
+    border-color: rgba(176, 18, 38, 0.25) !important;
+    color: #D41530 !important;
+    transform: none !important;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS — LUXURY
+══════════════════════════════════════════ */
+.btn {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.06em !important;
+    border-radius: 4px !important;
+}
+
+.btn--primary {
+    background: #B01226 !important;
+    border: 1px solid #B01226 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    font-weight: 400 !important;
+}
+.btn--primary:hover {
+    background: #D41530 !important;
+    border-color: #D41530 !important;
+    transform: none !important;
+    box-shadow: 0 2px 16px rgba(176,18,38,0.25) !important;
+}
+
+.btn--secondary {
+    background: transparent !important;
+    border: 1px solid rgba(255,255,255,0.09) !important;
+    color: var(--text-secondary) !important;
+}
+.btn--secondary:hover {
+    background: var(--bg-elevated) !important;
+    border-color: rgba(255,255,255,0.14) !important;
+    color: var(--text-primary) !important;
+}
+
+.btn--sm {
+    font-size: 0.75rem !important;
+    letter-spacing: 0.08em !important;
+    padding: 5px 14px !important;
+}
+
+/* ══════════════════════════════════════════
+   INPUTS — LUXURY MINIMAL
+══════════════════════════════════════════ */
+.form-input, .form-select,
+input[type="text"], input[type="email"],
+input[type="password"], input[type="number"], select {
+    background: var(--bg-elevated) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 4px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 300 !important;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.02em !important;
+}
+.form-input:focus, select:focus, input:focus {
+    border-color: rgba(176, 18, 38, 0.45) !important;
+    box-shadow: 0 0 0 2px rgba(176, 18, 38, 0.08) !important;
+    background: var(--bg-elevated) !important;
+}
+
+.form-label {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.14em !important;
+    color: var(--text-muted) !important;
+}
+
+/* ══════════════════════════════════════════
+   TABLE — EDITORIAL
+══════════════════════════════════════════ */
+.table thead th {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 300 !important;
+    font-size: 0.65rem !important;
+    letter-spacing: 0.20em !important;
+    color: var(--text-muted) !important;
+    padding: 12px 18px !important;
+}
+.table tbody td {
+    padding: 15px 18px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 300 !important;
+}
+.table tbody tr:hover td {
+    background: rgba(176, 18, 38, 0.03) !important;
+}
+
+/* ══════════════════════════════════════════
+   BLOOD BADGE — LUXURY
+══════════════════════════════════════════ */
+.blood-badge {
+    background: transparent !important;
+    border: 1px solid rgba(176, 18, 38, 0.30) !important;
+    color: #C01224 !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    border-radius: 4px !important;
+}
+.blood-badge--sm {
+    background: transparent !important;
+    border: 1px solid rgba(176, 18, 38, 0.25) !important;
+    color: #C01224 !important;
+    font-family: 'Outfit', sans-serif !important;
+    border-radius: 3px !important;
+}
+
+/* ══════════════════════════════════════════
+   BADGES
+══════════════════════════════════════════ */
+.badge {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 300 !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 0.10em !important;
+    border-radius: 3px !important;
+}
+.badge-critical {
+    background: rgba(176,18,38,0.07) !important;
+    border: 1px solid rgba(176,18,38,0.22) !important;
+    color: #C01224 !important;
+    border-radius: 3px !important;
+    padding: 3px 10px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.08em !important;
+}
+.badge-urgent {
+    background: rgba(176,120,0,0.07) !important;
+    border: 1px solid rgba(245,158,11,0.22) !important;
+    color: #C08A00 !important;
+    border-radius: 3px !important;
+    padding: 3px 10px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 0.7rem !important;
+}
+.badge-normal {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: var(--text-muted) !important;
+    border-radius: 3px !important;
+    padding: 3px 10px !important;
+}
+
+/* ══════════════════════════════════════════
+   PROGRESS BAR — LUXURY LINE
+══════════════════════════════════════════ */
+.progress-bar {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 0 !important;
+    height: 2px !important;
+}
+.progress-bar__fill {
+    border-radius: 0 !important;
+    background: linear-gradient(90deg, #8B0E1E, #C0152A) !important;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ══════════════════════════════════════════
+   NAV DROPDOWN — LUXURY
+══════════════════════════════════════════ */
+.nav-drop {
+    background: rgba(13, 13, 16, 0.98) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6) !important;
+}
+.nav-drop__link {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 300 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.04em !important;
+}
+.nav-drop__link:hover {
+    background: rgba(176, 18, 38, 0.06) !important;
+    color: #D41530 !important;
+}
+.nav-drop__divider {
+    border-color: rgba(255, 255, 255, 0.04) !important;
+    margin: 4px 12px !important;
+}
+
+/* ══════════════════════════════════════════
+   ENTRANCE ANIMATIONS — SUBTLE LUXURY
+══════════════════════════════════════════ */
+@keyframes luxuryFade {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes luxuryLine {
+    from { transform: scaleX(0); opacity: 0; }
+    to   { transform: scaleX(1); opacity: 1; }
+}
+
+.page-section.active .card {
+    animation: luxuryFade 0.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.page-section.active .card:nth-child(2) { animation-delay: 0.10s; }
+.page-section.active .card:nth-child(3) { animation-delay: 0.20s; }
+
+.page-section.active .stat-card {
+    animation: luxuryFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.page-section.active .stat-card:nth-child(1) { animation-delay: 0.05s; }
+.page-section.active .stat-card:nth-child(2) { animation-delay: 0.12s; }
+.page-section.active .stat-card:nth-child(3) { animation-delay: 0.19s; }
+.page-section.active .stat-card:nth-child(4) { animation-delay: 0.26s; }
+
+/* ══════════════════════════════════════════
+   AUTH — LUXURY
+══════════════════════════════════════════ */
+.auth-form-side {
+    background: rgba(12, 12, 14, 1) !important;
+}
+.auth-form-wrap {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+.auth-form-title {
+    font-family: 'Cormorant Garamond', serif !important;
+    font-size: 2.4rem !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.01em !important;
+}
+.auth-form-subtitle {
+    font-weight: 300 !important;
+    letter-spacing: 0.05em !important;
+    color: var(--text-muted) !important;
+}
+.register-card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+/* ══════════════════════════════════════════
+   TYPOGRAPHY
+══════════════════════════════════════════ */
+h1, h2, h3, h4, h5, h6,
+.card-title, .nav-brand-name,
+.auth-form-title, .auth-panel__headline {
+    font-family: 'Cormorant Garamond', serif !important;
+    letter-spacing: -0.01em !important;
+    text-transform: none !important;
+}
+body, p, .form-label, .btn, td, th,
+.form-input, .form-select, input, select {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 300 !important;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(176, 18, 38, 0.25);
+}

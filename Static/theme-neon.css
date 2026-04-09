@@ -1,0 +1,531 @@
+/* ============================================================
+   LIFEFLOW — THEME 2: NEON / CYBERPUNK
+   Electric glow borders · Crimson neon · Scanline texture
+   Terminal aesthetic meets medical urgency
+
+   HOW TO USE:
+   In base.html, add AFTER all other CSS links:
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-neon.css') }}">
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700;800&display=swap');
+
+/* ══════════════════════════════════════════
+   OVERRIDE VARIABLES
+══════════════════════════════════════════ */
+:root {
+    --font-display:   'Rajdhani', sans-serif;
+    --font-body:      'Exo 2', sans-serif;
+    --font-mono:      'Share Tech Mono', monospace;
+
+    --bg-dark:        #030308;
+    --bg-base:        #05050D;
+    --bg-card:        #0A0A15;
+    --bg-elevated:    #0F0F1E;
+    --bg-hover:       #141425;
+    --bg-overlay:     rgba(3, 3, 8, 0.92);
+
+    --border:         rgba(192, 21, 42, 0.20);
+    --border-soft:    rgba(192, 21, 42, 0.08);
+    --border-accent:  rgba(192, 21, 42, 0.55);
+    --border-strong:  rgba(232, 25, 47, 0.70);
+
+    --text-primary:   #F0F0FF;
+    --text-secondary: #8888AA;
+    --text-muted:     #44445A;
+
+    --neon-red:       #FF1744;
+    --neon-glow:      0 0 10px rgba(255, 23, 68, 0.8), 0 0 30px rgba(255, 23, 68, 0.4), 0 0 60px rgba(255, 23, 68, 0.2);
+    --neon-glow-sm:   0 0 6px rgba(255, 23, 68, 0.6), 0 0 16px rgba(255, 23, 68, 0.3);
+    --neon-border:    1px solid rgba(255, 23, 68, 0.6);
+
+    --radius:         4px;
+    --radius-sm:      2px;
+    --radius-md:      6px;
+    --radius-lg:      8px;
+    --radius-xl:      10px;
+    --radius-card:    6px;
+}
+
+/* ══════════════════════════════════════════
+   BODY — SCANLINES + GRID
+══════════════════════════════════════════ */
+body {
+    background: var(--bg-dark) !important;
+    font-family: var(--font-body) !important;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(255, 23, 68, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 0% 100%, rgba(192, 21, 42, 0.10) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Scanlines */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 2px,
+        rgba(0, 0, 0, 0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.3;
+}
+
+/* Grid overlay */
+.main-content::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(192, 21, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(192, 21, 42, 0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ══════════════════════════════════════════
+   NAVBAR — NEON BAR
+══════════════════════════════════════════ */
+.navbar {
+    background: rgba(3, 3, 8, 0.95) !important;
+    backdrop-filter: blur(8px) !important;
+    border-bottom: 1px solid rgba(255, 23, 68, 0.3) !important;
+    box-shadow: 0 1px 0 rgba(255, 23, 68, 0.4), 0 4px 32px rgba(0,0,0,0.8) !important;
+    height: 60px !important;
+}
+
+.navbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 23, 68, 0.8) 30%,
+        rgba(255, 100, 100, 1) 50%,
+        rgba(255, 23, 68, 0.8) 70%,
+        transparent 100%);
+    animation: neonScan 3s ease-in-out infinite;
+}
+
+@keyframes neonScan {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.nav-brand-icon {
+    background: transparent !important;
+    border: var(--neon-border) !important;
+    box-shadow: var(--neon-glow-sm) !important;
+    border-radius: 4px !important;
+}
+
+.nav-brand-name {
+    font-family: 'Rajdhani', sans-serif !important;
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+
+.nav-brand-name em {
+    color: var(--neon-red) !important;
+    text-shadow: var(--neon-glow-sm) !important;
+}
+
+/* ══════════════════════════════════════════
+   CARDS — NEON BORDERED
+══════════════════════════════════════════ */
+.card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(192, 21, 42, 0.25) !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: 0 0 0 1px rgba(255, 23, 68, 0.05), inset 0 0 30px rgba(192, 21, 42, 0.03) !important;
+    position: relative !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+    overflow: hidden !important;
+}
+
+/* Neon top bar */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 23, 68, 0.6) 40%,
+        rgba(255, 100, 100, 0.8) 50%,
+        rgba(255, 23, 68, 0.6) 60%,
+        transparent 100%);
+    pointer-events: none;
+}
+
+/* Corner accents */
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 16px; height: 16px;
+    border-top: 2px solid rgba(255, 23, 68, 0.7);
+    border-left: 2px solid rgba(255, 23, 68, 0.7);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.card:hover {
+    border-color: rgba(255, 23, 68, 0.55) !important;
+    box-shadow: 0 0 20px rgba(255, 23, 68, 0.12), 0 0 40px rgba(255, 23, 68, 0.05), inset 0 0 30px rgba(192, 21, 42, 0.05) !important;
+}
+
+.card-header {
+    background: rgba(192, 21, 42, 0.04) !important;
+    border-bottom: 1px solid rgba(192, 21, 42, 0.20) !important;
+}
+
+.card-title {
+    font-family: 'Rajdhani', sans-serif !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+.card-title-icon {
+    border: 1px solid rgba(255, 23, 68, 0.4) !important;
+    background: rgba(255, 23, 68, 0.08) !important;
+    box-shadow: 0 0 10px rgba(255, 23, 68, 0.15) !important;
+    border-radius: 4px !important;
+}
+
+/* ══════════════════════════════════════════
+   STAT CARDS — NEON
+══════════════════════════════════════════ */
+.stat-card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(192, 21, 42, 0.25) !important;
+    border-radius: 6px !important;
+    position: relative !important;
+    transition: all 0.25s ease !important;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%) !important;
+}
+
+.stat-card::before {
+    background: linear-gradient(90deg, rgba(255,23,68,0.8), rgba(255,23,68,0.3), transparent) !important;
+    height: 2px !important;
+}
+
+.stat-card:hover {
+    border-color: rgba(255, 23, 68, 0.6) !important;
+    box-shadow: 0 0 24px rgba(255, 23, 68, 0.18), inset 0 0 20px rgba(255, 23, 68, 0.04) !important;
+    transform: translateY(-3px) !important;
+}
+
+.stat-card__value {
+    font-family: 'Share Tech Mono', monospace !important;
+    font-size: 2.2rem !important;
+    color: #FF4060 !important;
+    text-shadow: 0 0 16px rgba(255, 64, 96, 0.5) !important;
+}
+
+/* ══════════════════════════════════════════
+   PROFILE CARD — NEON HERO
+══════════════════════════════════════════ */
+.profile-card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255, 23, 68, 0.35) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 30px rgba(255, 23, 68, 0.10), inset 0 0 60px rgba(192,21,42,0.04) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* Animated corner brackets */
+.profile-card::before {
+    content: '';
+    position: absolute;
+    top: 12px; left: 12px;
+    width: 30px; height: 30px;
+    border-top: 2px solid rgba(255, 23, 68, 0.8);
+    border-left: 2px solid rgba(255, 23, 68, 0.8);
+    box-shadow: -2px -2px 8px rgba(255, 23, 68, 0.3);
+    pointer-events: none;
+    z-index: 2;
+}
+.profile-card::after {
+    content: '';
+    position: absolute;
+    bottom: 12px; right: 12px;
+    width: 30px; height: 30px;
+    border-bottom: 2px solid rgba(255, 23, 68, 0.8);
+    border-right: 2px solid rgba(255, 23, 68, 0.8);
+    box-shadow: 2px 2px 8px rgba(255, 23, 68, 0.3);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ══════════════════════════════════════════
+   PROFILE ACTIONS — NEON BUTTONS
+══════════════════════════════════════════ */
+.profile-action-btn {
+    background: transparent !important;
+    border: 1px solid rgba(192, 21, 42, 0.35) !important;
+    border-radius: 4px !important;
+    font-family: 'Exo 2', sans-serif !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    font-size: 0.72rem !important;
+    transition: all 0.2s ease !important;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%) !important;
+}
+.profile-action-btn:hover {
+    background: rgba(255, 23, 68, 0.10) !important;
+    border-color: rgba(255, 23, 68, 0.7) !important;
+    box-shadow: 0 0 12px rgba(255, 23, 68, 0.25), inset 0 0 12px rgba(255,23,68,0.05) !important;
+    color: #FF6B7A !important;
+    transform: translateY(-2px) !important;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS — NEON
+══════════════════════════════════════════ */
+.btn--primary {
+    background: rgba(192, 21, 42, 0.15) !important;
+    border: var(--neon-border) !important;
+    color: var(--neon-red) !important;
+    box-shadow: var(--neon-glow-sm) !important;
+    font-family: 'Exo 2', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    border-radius: 4px !important;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%) !important;
+}
+.btn--primary:hover {
+    background: rgba(255, 23, 68, 0.25) !important;
+    box-shadow: var(--neon-glow) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn--secondary {
+    background: transparent !important;
+    border: 1px solid rgba(192, 21, 42, 0.30) !important;
+    color: var(--text-secondary) !important;
+    font-family: 'Exo 2', sans-serif !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    border-radius: 4px !important;
+}
+.btn--secondary:hover {
+    border-color: rgba(255, 23, 68, 0.5) !important;
+    color: #FF6B7A !important;
+    box-shadow: 0 0 10px rgba(255, 23, 68, 0.15) !important;
+}
+
+.btn--success {
+    border-color: rgba(29, 184, 112, 0.5) !important;
+    box-shadow: 0 0 8px rgba(29, 184, 112, 0.2) !important;
+}
+.btn--danger {
+    border-color: rgba(255, 23, 68, 0.5) !important;
+    box-shadow: 0 0 8px rgba(255, 23, 68, 0.2) !important;
+}
+
+/* ══════════════════════════════════════════
+   INPUTS — NEON TERMINAL
+══════════════════════════════════════════ */
+.form-input, .form-select,
+input[type="text"], input[type="email"],
+input[type="password"], input[type="number"], select {
+    background: rgba(192, 21, 42, 0.04) !important;
+    border: 1px solid rgba(192, 21, 42, 0.25) !important;
+    border-radius: 4px !important;
+    font-family: 'Share Tech Mono', monospace !important;
+    font-size: 0.88rem !important;
+    color: #E0E0F0 !important;
+}
+.form-input:focus, select:focus, input:focus {
+    border-color: rgba(255, 23, 68, 0.7) !important;
+    box-shadow: 0 0 0 2px rgba(255, 23, 68, 0.12), 0 0 16px rgba(255,23,68,0.1) !important;
+    background: rgba(255, 23, 68, 0.05) !important;
+}
+
+/* ══════════════════════════════════════════
+   TABLE — NEON GRID
+══════════════════════════════════════════ */
+.table thead th {
+    background: rgba(192, 21, 42, 0.06) !important;
+    border-bottom: 1px solid rgba(192, 21, 42, 0.25) !important;
+    font-family: 'Rajdhani', sans-serif !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.15em !important;
+    font-weight: 700 !important;
+    color: rgba(255, 23, 68, 0.7) !important;
+}
+.table tbody tr:hover td {
+    background: rgba(255, 23, 68, 0.05) !important;
+}
+.table tbody td {
+    border-bottom: 1px solid rgba(192, 21, 42, 0.08) !important;
+    font-family: 'Exo 2', sans-serif !important;
+}
+
+/* ══════════════════════════════════════════
+   BLOOD BADGE — NEON
+══════════════════════════════════════════ */
+.blood-badge, .blood-badge--sm {
+    background: rgba(255, 23, 68, 0.08) !important;
+    border: 1px solid rgba(255, 23, 68, 0.45) !important;
+    color: #FF6B7A !important;
+    font-family: 'Share Tech Mono', monospace !important;
+    box-shadow: 0 0 8px rgba(255, 23, 68, 0.2) !important;
+    border-radius: 4px !important;
+}
+
+/* ══════════════════════════════════════════
+   NAV DROPDOWN — NEON
+══════════════════════════════════════════ */
+.nav-drop {
+    background: rgba(5, 5, 13, 0.98) !important;
+    border: 1px solid rgba(192, 21, 42, 0.35) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 0 20px rgba(255, 23, 68, 0.12), 0 16px 40px rgba(0,0,0,0.8) !important;
+}
+.nav-drop__link {
+    font-family: 'Exo 2', sans-serif !important;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.04em !important;
+    border-radius: 4px !important;
+}
+.nav-drop__link:hover {
+    background: rgba(255, 23, 68, 0.08) !important;
+    color: #FF6B7A !important;
+    text-shadow: 0 0 8px rgba(255, 23, 68, 0.4) !important;
+}
+
+/* ══════════════════════════════════════════
+   BADGES — NEON
+══════════════════════════════════════════ */
+.badge-critical {
+    background: rgba(255,23,68,0.10) !important;
+    border: 1px solid rgba(255,23,68,0.50) !important;
+    color: #FF6B7A !important;
+    box-shadow: 0 0 8px rgba(255,23,68,0.2) !important;
+    font-family: 'Exo 2', sans-serif !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    border-radius: 3px !important;
+    padding: 3px 10px !important;
+}
+.badge-urgent {
+    background: rgba(245,158,11,0.10) !important;
+    border: 1px solid rgba(245,158,11,0.50) !important;
+    color: #FFC043 !important;
+    box-shadow: 0 0 8px rgba(245,158,11,0.2) !important;
+    font-family: 'Exo 2', sans-serif !important;
+    border-radius: 3px !important;
+    padding: 3px 10px !important;
+}
+
+/* ══════════════════════════════════════════
+   PROGRESS BAR — NEON
+══════════════════════════════════════════ */
+.progress-bar {
+    background: rgba(255, 23, 68, 0.08) !important;
+    border: 1px solid rgba(255, 23, 68, 0.12) !important;
+    border-radius: 2px !important;
+}
+.progress-bar__fill {
+    box-shadow: 0 0 8px rgba(255, 23, 68, 0.5) !important;
+    border-radius: 2px !important;
+}
+
+/* ══════════════════════════════════════════
+   ENTRANCE ANIMATIONS — NEON GLITCH
+══════════════════════════════════════════ */
+@keyframes neonReveal {
+    0%   { opacity: 0; transform: translateX(-12px); clip-path: inset(0 100% 0 0); }
+    40%  { clip-path: inset(0 0 0 0); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes neonFlicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.6; }
+}
+
+.page-section.active .card {
+    animation: neonReveal 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page-section.active .card:nth-child(2) { animation-delay: 0.06s; }
+.page-section.active .card:nth-child(3) { animation-delay: 0.12s; }
+.page-section.active .stat-card {
+    animation: neonReveal 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page-section.active .stat-card:nth-child(1) { animation-delay: 0.03s; }
+.page-section.active .stat-card:nth-child(2) { animation-delay: 0.08s; }
+.page-section.active .stat-card:nth-child(3) { animation-delay: 0.13s; }
+.page-section.active .stat-card:nth-child(4) { animation-delay: 0.18s; }
+
+/* ══════════════════════════════════════════
+   AUTH — NEON TERMINAL
+══════════════════════════════════════════ */
+.auth-form-wrap {
+    background: rgba(5, 5, 13, 0.96) !important;
+    border: 1px solid rgba(255, 23, 68, 0.30) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 0 40px rgba(255, 23, 68, 0.10), 0 20px 60px rgba(0,0,0,0.8) !important;
+}
+.auth-form-title {
+    font-family: 'Rajdhani', sans-serif !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    color: #FF4060 !important;
+    text-shadow: 0 0 20px rgba(255,64,96,0.4) !important;
+}
+.register-card {
+    background: rgba(5, 5, 13, 0.98) !important;
+    border: 1px solid rgba(255, 23, 68, 0.25) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 0 40px rgba(255, 23, 68, 0.08) !important;
+}
+
+/* ══════════════════════════════════════════
+   TYPOGRAPHY
+══════════════════════════════════════════ */
+h1, h2, h3, h4, h5, h6,
+.card-title, .nav-brand-name,
+.auth-form-title, .auth-panel__headline {
+    font-family: 'Rajdhani', sans-serif !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+}
+body, p, .form-label, .btn, td, th {
+    font-family: 'Exo 2', sans-serif !important;
+}
+.form-input, .form-select, input, select {
+    font-family: 'Share Tech Mono', monospace !important;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 23, 68, 0.4);
+    border-radius: 0;
+    box-shadow: 0 0 6px rgba(255,23,68,0.4);
+}

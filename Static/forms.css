@@ -1,0 +1,318 @@
+/* ============================================================
+   LIFEFLOW BLOOD BANK — FORMS & BUTTONS
+   forms.css
+   ============================================================ */
+
+/* ══════════════════════════════════════════
+   FORM BASE
+══════════════════════════════════════════ */
+.form-group { margin-bottom: 1.25rem; }
+.form-group:last-child { margin-bottom: 0; }
+
+.form-row {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+}
+
+.form-row--3 { grid-template-columns: repeat(3, 1fr); }
+
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 7px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
+.form-error-text {
+    font-size: 0.78rem;
+    color: var(--error);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ── Section divider inside forms ── */
+.form-section {
+    margin: 1.75rem 0 1.25rem;
+}
+
+.form-section__label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-section__dot {
+    width: 6px;
+    height: 6px;
+    background: var(--crimson);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+
+/* ══════════════════════════════════════════
+   INPUTS & SELECTS
+══════════════════════════════════════════ */
+.form-input,
+.form-select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.form-input:hover,
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover,
+input[type="number"]:hover,
+select:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-hover);
+}
+
+.form-input:focus,
+.form-select:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: var(--crimson);
+    box-shadow: 0 0 0 3px var(--crimson-glow);
+    background: var(--bg-elevated);
+}
+
+.form-input::placeholder,
+input::placeholder {
+    color: var(--text-disabled);
+    font-weight: 400;
+}
+
+/* Select arrow */
+select,
+.form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235A5A6A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+select option {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+/* Compact inputs (inside table forms, inline) */
+.form-input--sm,
+input.input-sm,
+select.input-sm {
+    padding: 6px 10px;
+    font-size: 0.82rem;
+    border-radius: var(--radius-sm);
+}
+
+/* Inline form row (stock update etc.) */
+.form-inline {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-inline .form-group { margin-bottom: 0; }
+
+.form-inline input,
+.form-inline select { width: auto; }
+
+
+/* ══════════════════════════════════════════
+   ERROR / ALERT MESSAGES (in-form)
+══════════════════════════════════════════ */
+.form-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 11px 15px;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    animation: slideDown 0.3s ease;
+}
+
+.form-alert--error {
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: var(--error);
+}
+
+.form-alert--success {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success);
+}
+
+.form-alert--info {
+    background: var(--info-bg);
+    border: 1px solid rgba(59, 159, 232, 0.25);
+    color: var(--info);
+}
+
+.form-alert__icon { flex-shrink: 0; }
+
+
+/* ══════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: all var(--transition);
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+    user-select: none;
+}
+
+.btn:active { transform: scale(0.97); }
+.btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Sizes */
+.btn--sm {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+    gap: 5px;
+}
+
+.btn--lg {
+    padding: 13px 28px;
+    font-size: 1rem;
+    border-radius: var(--radius-md);
+}
+
+.btn--full { width: 100%; }
+
+/* Primary */
+.btn--primary {
+    background: var(--crimson);
+    color: #fff;
+    border-color: var(--crimson);
+    box-shadow: 0 2px 14px rgba(192, 21, 42, 0.30);
+}
+
+.btn--primary:hover {
+    background: var(--crimson-light);
+    border-color: var(--crimson-light);
+    box-shadow: 0 4px 24px rgba(232, 25, 47, 0.40);
+    transform: translateY(-1px);
+}
+
+/* Secondary */
+.btn--secondary {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.btn--secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-strong);
+}
+
+/* Success */
+.btn--success {
+    background: var(--success-bg);
+    color: var(--success);
+    border-color: var(--success-border);
+}
+
+.btn--success:hover {
+    background: rgba(29, 184, 112, 0.22);
+    border-color: rgba(29, 184, 112, 0.40);
+}
+
+/* Danger */
+.btn--danger {
+    background: var(--error-bg);
+    color: var(--error);
+    border-color: var(--error-border);
+}
+
+.btn--danger:hover {
+    background: rgba(232, 25, 47, 0.18);
+    border-color: rgba(232, 25, 47, 0.40);
+}
+
+/* Ghost */
+.btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border);
+}
+
+.btn--ghost:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+
+/* ══════════════════════════════════════════
+   RESPONSIVE FORMS
+══════════════════════════════════════════ */
+@media (max-width: 600px) {
+    .form-row,
+    .form-row--3 { grid-template-columns: 1fr; }
+    .form-inline { flex-direction: column; align-items: stretch; }
+    .form-inline input,
+    .form-inline select { width: 100%; }
+}

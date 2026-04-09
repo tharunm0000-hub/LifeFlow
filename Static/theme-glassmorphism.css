@@ -1,0 +1,462 @@
+/* ============================================================
+   LIFEFLOW — THEME 1: GLASSMORPHISM
+   Frosted glass cards · Blur layers · Translucent panels
+   Deep crimson atmosphere with crystalline surfaces
+
+   HOW TO USE:
+   In base.html, add AFTER all other CSS links:
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-glassmorphism.css') }}">
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* ══════════════════════════════════════════
+   OVERRIDE VARIABLES
+══════════════════════════════════════════ */
+:root {
+    --font-display:   'Syne', sans-serif;
+    --font-body:      'Space Grotesk', sans-serif;
+
+    --bg-dark:        #080810;
+    --bg-base:        #0A0A14;
+    --bg-card:        rgba(255, 255, 255, 0.03);
+    --bg-elevated:    rgba(255, 255, 255, 0.06);
+    --bg-hover:       rgba(255, 255, 255, 0.09);
+    --bg-overlay:     rgba(8, 8, 16, 0.75);
+
+    --border:         rgba(255, 255, 255, 0.08);
+    --border-soft:    rgba(255, 255, 255, 0.04);
+    --border-accent:  rgba(192, 21, 42, 0.40);
+    --border-strong:  rgba(255, 255, 255, 0.15);
+
+    --crimson-glow:   rgba(192, 21, 42, 0.18);
+    --glass-blur:     blur(24px);
+    --glass-border:   1px solid rgba(255, 255, 255, 0.10);
+    --glass-shadow:   0 8px 48px rgba(0, 0, 0, 0.60), inset 0 1px 0 rgba(255,255,255,0.08);
+
+    --radius-lg:      20px;
+    --radius-xl:      28px;
+    --radius-card:    24px;
+}
+
+/* ══════════════════════════════════════════
+   GLOBAL BODY & BACKGROUND
+══════════════════════════════════════════ */
+body {
+    background: var(--bg-dark);
+    font-family: var(--font-body);
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 90% 60% at 10% 0%,   rgba(192, 21, 42, 0.22) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 90% 100%,  rgba(139, 14, 30, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 50%,   rgba(80, 0, 15, 0.12)  0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Animated noise grain overlay for depth */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+}
+
+/* ══════════════════════════════════════════
+   NAVBAR — GLASS
+══════════════════════════════════════════ */
+.navbar {
+    background: rgba(8, 8, 16, 0.65) !important;
+    backdrop-filter: blur(32px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+    box-shadow: 0 1px 0 rgba(192, 21, 42, 0.15), 0 4px 32px rgba(0,0,0,0.4) !important;
+}
+
+.nav-brand-icon {
+    background: linear-gradient(135deg, #C0152A 0%, #6B0012 100%) !important;
+    box-shadow: 0 0 20px rgba(192, 21, 42, 0.5), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+    border-radius: 12px !important;
+}
+
+/* ══════════════════════════════════════════
+   CARDS — FROSTED GLASS
+══════════════════════════════════════════ */
+.card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(24px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: var(--glass-shadow) !important;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.15) 30%,
+        rgba(192, 21, 42, 0.4) 60%,
+        transparent 100%);
+    pointer-events: none;
+}
+
+.card:hover {
+    border-color: rgba(192, 21, 42, 0.35) !important;
+    box-shadow: 0 12px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(192,21,42,0.2), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+.card--accent {
+    background: rgba(192, 21, 42, 0.05) !important;
+    border-color: rgba(192, 21, 42, 0.25) !important;
+}
+
+.card-header {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    padding: 1.25rem 1.6rem !important;
+}
+
+/* ══════════════════════════════════════════
+   STAT CARDS — GLASS
+══════════════════════════════════════════ */
+.stat-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
+}
+
+.stat-card::before {
+    background: linear-gradient(90deg, rgba(192,21,42,0.6), rgba(192,21,42,0.2), transparent) !important;
+    height: 2px !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px) scale(1.02) !important;
+    border-color: rgba(192, 21, 42, 0.4) !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 24px rgba(192,21,42,0.15), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+}
+
+/* ══════════════════════════════════════════
+   PROFILE CARD — GLASS HERO
+══════════════════════════════════════════ */
+.profile-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(40px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-radius: 28px !important;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(192,21,42,0.1), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+    overflow: hidden !important;
+}
+
+.profile-card__bg {
+    background: linear-gradient(135deg,
+        rgba(192, 21, 42, 0.25) 0%,
+        rgba(139, 14, 30, 0.10) 40%,
+        transparent 70%) !important;
+}
+
+/* Avatar */
+.profile-avatar-wrap {
+    position: relative;
+}
+.profile-avatar-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #C0152A, #E8192F, #FF4D5E, #C0152A);
+    z-index: -1;
+    animation: spinRing 6s linear infinite;
+}
+@keyframes spinRing {
+    to { transform: rotate(360deg); }
+}
+
+/* ══════════════════════════════════════════
+   PROFILE ACTION BUTTONS — GLASS PILLS
+══════════════════════════════════════════ */
+.profile-action-btn {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-radius: 50px !important;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    font-family: var(--font-body) !important;
+}
+.profile-action-btn:hover {
+    background: rgba(192, 21, 42, 0.20) !important;
+    border-color: rgba(192, 21, 42, 0.50) !important;
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 8px 24px rgba(192, 21, 42, 0.25) !important;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS — GLASS
+══════════════════════════════════════════ */
+.btn--primary {
+    background: linear-gradient(135deg, rgba(192,21,42,0.9), rgba(139,14,30,0.9)) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(232, 25, 47, 0.5) !important;
+    box-shadow: 0 4px 20px rgba(192,21,42,0.4), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+}
+.btn--primary:hover {
+    background: linear-gradient(135deg, #E8192F, #C0152A) !important;
+    box-shadow: 0 8px 32px rgba(232,25,47,0.5), inset 0 1px 0 rgba(255,255,255,0.2) !important;
+    transform: translateY(-2px) !important;
+}
+
+.btn--secondary {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+.btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.09) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* ══════════════════════════════════════════
+   INPUTS — GLASS
+══════════════════════════════════════════ */
+.form-input, .form-select,
+input[type="text"], input[type="email"],
+input[type="password"], input[type="number"], select {
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 12px !important;
+}
+.form-input:focus, .form-select:focus,
+input:focus, select:focus {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(192, 21, 42, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(192, 21, 42, 0.15), 0 0 20px rgba(192,21,42,0.1) !important;
+}
+
+/* ══════════════════════════════════════════
+   TABLE — GLASS ROWS
+══════════════════════════════════════════ */
+.table thead th {
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(8px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+    font-family: var(--font-body) !important;
+    letter-spacing: 0.12em !important;
+}
+.table tbody tr:hover td {
+    background: rgba(192, 21, 42, 0.06) !important;
+}
+
+/* ══════════════════════════════════════════
+   NOTIFICATION BELL & DROPDOWN — GLASS
+══════════════════════════════════════════ */
+.notif-dropdown {
+    background: rgba(12, 12, 20, 0.85) !important;
+    backdrop-filter: blur(32px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(192,21,42,0.1) !important;
+}
+
+/* ══════════════════════════════════════════
+   SETTINGS PANEL — GLASS
+══════════════════════════════════════════ */
+.settings-panel {
+    background: rgba(10, 10, 20, 0.85) !important;
+    backdrop-filter: blur(40px) saturate(180%) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.settings-panel-hdr {
+    background: rgba(10, 10, 20, 0.95) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+/* ══════════════════════════════════════════
+   BADGES — GLASS PILLS
+══════════════════════════════════════════ */
+.badge {
+    backdrop-filter: blur(8px) !important;
+    border-radius: 999px !important;
+}
+.badge-critical {
+    background: rgba(232,25,47,0.12) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(232,25,47,0.35) !important;
+    border-radius: 999px !important;
+    color: #FF6B7A !important;
+    padding: 3px 12px !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+}
+.badge-urgent {
+    background: rgba(245,158,11,0.12) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(245,158,11,0.35) !important;
+    border-radius: 999px !important;
+    color: #FFC043 !important;
+    padding: 3px 12px !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+}
+
+/* ══════════════════════════════════════════
+   NAV DROPDOWN — GLASS
+══════════════════════════════════════════ */
+.nav-drop {
+    background: rgba(10, 10, 20, 0.88) !important;
+    backdrop-filter: blur(32px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(192,21,42,0.1) !important;
+}
+.nav-drop__link:hover {
+    background: rgba(192, 21, 42, 0.12) !important;
+    color: #FF6B7A !important;
+    border-radius: 10px !important;
+}
+
+/* ══════════════════════════════════════════
+   AUTH PAGES — GLASS FORM CARD
+══════════════════════════════════════════ */
+.auth-form-side {
+    background: transparent !important;
+    backdrop-filter: none !important;
+}
+.auth-form-wrap {
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(32px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    border-radius: 28px !important;
+    padding: 3rem !important;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+    max-width: 460px !important;
+}
+.register-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(32px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 28px !important;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+}
+
+/* ══════════════════════════════════════════
+   ALERT BANNER — GLASS
+══════════════════════════════════════════ */
+.alert-banner {
+    background: rgba(192, 21, 42, 0.08) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(192, 21, 42, 0.25) !important;
+    border-radius: 20px !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+
+/* ══════════════════════════════════════════
+   BLOOD BADGE — GLASS
+══════════════════════════════════════════ */
+.blood-badge, .blood-badge--sm {
+    background: rgba(192, 21, 42, 0.12) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(192, 21, 42, 0.35) !important;
+    box-shadow: 0 0 12px rgba(192, 21, 42, 0.15) !important;
+}
+
+/* ══════════════════════════════════════════
+   ENTRANCE ANIMATIONS — GLASS FLOAT-IN
+══════════════════════════════════════════ */
+@keyframes glassSlideUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); filter: blur(8px); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    filter: blur(0); }
+}
+@keyframes glassFadeIn {
+    from { opacity: 0; filter: blur(4px); }
+    to   { opacity: 1; filter: blur(0); }
+}
+
+.page-section.active .card {
+    animation: glassSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page-section.active .card:nth-child(2) { animation-delay: 0.08s; }
+.page-section.active .card:nth-child(3) { animation-delay: 0.16s; }
+.page-section.active .card:nth-child(4) { animation-delay: 0.24s; }
+
+.page-section.active .stat-card {
+    animation: glassSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page-section.active .stat-card:nth-child(1) { animation-delay: 0.04s; }
+.page-section.active .stat-card:nth-child(2) { animation-delay: 0.10s; }
+.page-section.active .stat-card:nth-child(3) { animation-delay: 0.16s; }
+.page-section.active .stat-card:nth-child(4) { animation-delay: 0.22s; }
+
+/* ══════════════════════════════════════════
+   PROGRESS BARS — GLASS SHIMMER
+══════════════════════════════════════════ */
+.progress-bar {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+}
+.progress-bar__fill {
+    position: relative;
+    overflow: hidden;
+}
+.progress-bar__fill::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmerBar 2.5s ease infinite;
+}
+@keyframes shimmerBar {
+    to { left: 200%; }
+}
+
+/* ══════════════════════════════════════════
+   TYPOGRAPHY OVERRIDES
+══════════════════════════════════════════ */
+h1, h2, h3, h4, h5, h6,
+.card-title, .nav-brand-name,
+.auth-form-title, .auth-panel__headline {
+    font-family: 'Syne', sans-serif !important;
+    letter-spacing: -0.03em !important;
+}
+body, p, .form-label, .form-input,
+.btn, .badge, td, th {
+    font-family: 'Space Grotesk', sans-serif !important;
+}
+
+/* ══════════════════════════════════════════
+   SCROLLBAR — GLASS
+══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(192, 21, 42, 0.3);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(192, 21, 42, 0.55);
+}

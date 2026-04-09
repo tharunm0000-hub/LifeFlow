@@ -1,0 +1,580 @@
+/* ============================================================
+   LIFEFLOW — THEME: TERMINAL
+   Retro CRT · Phosphor green · Hacker aesthetic
+   Fonts: Share Tech Mono (display + body)
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+[data-theme="terminal"] {
+  --phosphor:      #00ff41;
+  --phosphor-dim:  #00cc33;
+  --phosphor-glow: rgba(0,255,65,0.20);
+  --phosphor-pale: rgba(0,255,65,0.06);
+  --crt-bg:        #000a00;
+  --amber:         #ffb300;
+
+  --blood:         #00ff41;
+  --blood-mid:     #00cc33;
+  --blood-light:   #33ff66;
+  --blood-pale:    rgba(0,255,65,0.08);
+  --blood-paler:   rgba(0,255,65,0.04);
+  --blood-border:  rgba(0,255,65,0.20);
+  --blood-glow:    rgba(0,255,65,0.18);
+
+  --bg:            #000a00;
+  --bg-2:          #001200;
+  --surface:       rgba(0,18,0,0.95);
+  --surface-2:     rgba(0,24,0,0.95);
+  --surface-3:     rgba(0,32,0,0.90);
+  --surface-4:     rgba(0,42,0,0.85);
+
+  --border:        rgba(0,255,65,0.18);
+  --border-2:      rgba(0,255,65,0.30);
+  --border-accent: rgba(0,255,65,0.40);
+
+  --ink:           #00ff41;
+  --ink-2:         #00cc33;
+  --ink-3:         #009922;
+  --ink-4:         #006614;
+  --ink-5:         #003308;
+
+  --green:        #00ff41; --green-bg: rgba(0,255,65,0.08); --green-border: rgba(0,255,65,0.25); --green-text: #00ff41;
+  --amber:        #ffb300; --amber-bg: rgba(255,179,0,0.08); --amber-border: rgba(255,179,0,0.25); --amber-text: #ffb300;
+  --rose:         #ff3333; --rose-bg:  rgba(255,51,51,0.08); --rose-border:  rgba(255,51,51,0.25); --rose-text:  #ff4444;
+  --sky:          #00aaff; --sky-bg:   rgba(0,170,255,0.08); --sky-border:   rgba(0,170,255,0.25); --sky-text:   #00ccff;
+
+  --font:         'Share Tech Mono', monospace;
+  --font-display: 'VT323', monospace;
+  --font-mono:    'Share Tech Mono', monospace;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.80);
+  --shadow:    0 0 16px rgba(0,255,65,0.08), 0 4px 20px rgba(0,0,0,0.70);
+  --shadow-lg: 0 0 32px rgba(0,255,65,0.12), 0 12px 48px rgba(0,0,0,0.80);
+  --shadow-blood: 0 0 24px rgba(0,255,65,0.30);
+}
+
+/* ── CRT scanline overlay ── */
+@keyframes scanlines {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 100px; }
+}
+
+@keyframes crtFlicker {
+  0%, 100% { opacity: 1; }
+  92%       { opacity: 1; }
+  93%       { opacity: 0.92; }
+  94%       { opacity: 1; }
+  97%       { opacity: 0.96; }
+  98%       { opacity: 1; }
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes typeIn {
+  from { width: 0; overflow: hidden; }
+  to   { width: 100%; }
+}
+
+@keyframes terminalBoot {
+  from { opacity: 0; transform: scale(0.99); filter: brightness(2); }
+  to   { opacity: 1; transform: scale(1); filter: brightness(1); }
+}
+
+/* ── Base ── */
+[data-theme="terminal"] body {
+  background: #000a00 !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  color: #00ff41 !important;
+  animation: crtFlicker 8s ease-in-out infinite !important;
+}
+
+/* Scanline effect */
+[data-theme="terminal"] body::before {
+  content: '' !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 1px,
+    rgba(0,255,65,0.02) 2px,
+    rgba(0,255,65,0.02) 3px
+  ) !important;
+  pointer-events: none !important;
+  animation: scanlines 4s linear infinite !important;
+}
+
+/* Vignette */
+[data-theme="terminal"] body::after {
+  content: '' !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9998 !important;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(0,0,0,0.60) 100%) !important;
+  pointer-events: none !important;
+}
+
+[data-theme="terminal"] .app-shell,
+[data-theme="terminal"] .main-content,
+[data-theme="terminal"] .sidebar {
+  position: relative !important;
+  z-index: 1 !important;
+  animation: terminalBoot 0.4s ease-out !important;
+}
+
+/* ── Sidebar ── */
+[data-theme="terminal"] .sidebar {
+  background: rgba(0, 8, 0, 0.98) !important;
+  border-right: 1px solid rgba(0,255,65,0.25) !important;
+  box-shadow: inset -1px 0 16px rgba(0,255,65,0.04) !important;
+}
+
+[data-theme="terminal"] .sidebar-brand {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(0,255,65,0.20) !important;
+}
+
+[data-theme="terminal"] .sidebar-brand-name {
+  font-family: 'VT323', monospace !important;
+  font-size: 1.6rem !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px rgba(0,255,65,0.70), 0 0 20px rgba(0,255,65,0.30) !important;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+  letter-spacing: 0.06em !important;
+}
+
+[data-theme="terminal"] .sidebar-brand-drop {
+  filter: sepia(1) saturate(5) hue-rotate(100deg) brightness(1.2) !important;
+  text-shadow: 0 0 8px rgba(0,255,65,0.80) !important;
+}
+
+[data-theme="terminal"] .sidebar-nav-link {
+  color: rgba(0,255,65,0.55) !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.78rem !important;
+  border-radius: 0 !important;
+  letter-spacing: 0.04em !important;
+  transition: all 0.15s ease !important;
+  border-left: 2px solid transparent !important;
+  text-transform: uppercase !important;
+}
+
+[data-theme="terminal"] .sidebar-nav-link:hover,
+[data-theme="terminal"] .sidebar-nav-link.active {
+  background: rgba(0,255,65,0.08) !important;
+  color: #00ff41 !important;
+  border-left: 2px solid #00ff41 !important;
+  text-shadow: 0 0 8px rgba(0,255,65,0.50) !important;
+}
+
+[data-theme="terminal"] .sidebar-nav-link::before {
+  content: '> ' !important;
+  opacity: 0 !important;
+  transition: opacity 0.15s !important;
+}
+
+[data-theme="terminal"] .sidebar-nav-link:hover::before,
+[data-theme="terminal"] .sidebar-nav-link.active::before {
+  opacity: 0.60 !important;
+}
+
+[data-theme="terminal"] .sidebar-nav-label {
+  color: rgba(0,255,65,0.30) !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.58rem !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+}
+
+[data-theme="terminal"] .sidebar-avatar {
+  background: rgba(0,255,65,0.12) !important;
+  border: 1px solid rgba(0,255,65,0.35) !important;
+  color: #00ff41 !important;
+  font-family: 'VT323', monospace !important;
+  font-size: 1.4rem !important;
+  text-shadow: 0 0 8px rgba(0,255,65,0.60) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] .sidebar-user-name {
+  color: #00ff41 !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.82rem !important;
+  text-shadow: 0 0 6px rgba(0,255,65,0.40) !important;
+}
+
+[data-theme="terminal"] .sidebar-user-role {
+  color: rgba(0,255,65,0.50) !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.62rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.10em !important;
+}
+
+/* ── Topbar ── */
+[data-theme="terminal"] .topbar {
+  background: rgba(0,8,0,0.96) !important;
+  border-bottom: 1px solid rgba(0,255,65,0.22) !important;
+  backdrop-filter: none !important;
+}
+
+[data-theme="terminal"] .topbar-title {
+  font-family: 'VT323', monospace !important;
+  font-size: 1.5rem !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px rgba(0,255,65,0.60) !important;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* ── Cards ── */
+[data-theme="terminal"] .card {
+  background: rgba(0,12,0,0.95) !important;
+  border: 1px solid rgba(0,255,65,0.22) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 16px rgba(0,255,65,0.06), inset 0 0 30px rgba(0,255,65,0.02) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="terminal"] .card::before {
+  background: linear-gradient(90deg, transparent, #00ff41, transparent) !important;
+  height: 1px !important;
+  opacity: 0.40 !important;
+}
+
+[data-theme="terminal"] .card:hover {
+  border-color: rgba(0,255,65,0.45) !important;
+  box-shadow: 0 0 24px rgba(0,255,65,0.14), inset 0 0 40px rgba(0,255,65,0.04) !important;
+}
+
+/* ── Stat cards ── */
+[data-theme="terminal"] .stat-card {
+  background: rgba(0,12,0,0.95) !important;
+  border: 1px solid rgba(0,255,65,0.22) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] .stat-card::before {
+  background: #00ff41 !important;
+  height: 1px !important;
+  opacity: 0.30 !important;
+}
+
+[data-theme="terminal"] .stat-value {
+  font-family: 'VT323', monospace !important;
+  font-size: 2.6rem !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 12px rgba(0,255,65,0.60) !important;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+  letter-spacing: 0.06em !important;
+}
+
+[data-theme="terminal"] .stat-label {
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: rgba(0,255,65,0.50) !important;
+}
+
+/* ── Profile card ── */
+[data-theme="terminal"] .profile-card {
+  background: rgba(0,12,0,0.95) !important;
+  border: 1px solid rgba(0,255,65,0.25) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] .profile-avatar {
+  background: rgba(0,255,65,0.10) !important;
+  border: 2px solid rgba(0,255,65,0.40) !important;
+  color: #00ff41 !important;
+  font-family: 'VT323', monospace !important;
+  font-size: 2rem !important;
+  text-shadow: 0 0 12px rgba(0,255,65,0.60) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 0 2px #000a00, 0 0 0 4px rgba(0,255,65,0.25), 0 0 20px rgba(0,255,65,0.20) !important;
+}
+
+/* ── Buttons ── */
+[data-theme="terminal"] .btn--primary {
+  background: rgba(0,255,65,0.12) !important;
+  border: 1px solid #00ff41 !important;
+  color: #00ff41 !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 8px rgba(0,255,65,0.20) !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-theme="terminal"] .btn--primary:hover {
+  background: rgba(0,255,65,0.22) !important;
+  box-shadow: 0 0 16px rgba(0,255,65,0.40), inset 0 0 10px rgba(0,255,65,0.08) !important;
+  color: #33ff66 !important;
+  text-shadow: 0 0 8px rgba(0,255,65,0.60) !important;
+}
+
+[data-theme="terminal"] .btn--secondary {
+  background: transparent !important;
+  border: 1px solid rgba(0,255,65,0.35) !important;
+  color: rgba(0,255,65,0.70) !important;
+  border-radius: 0 !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.08em !important;
+}
+
+[data-theme="terminal"] .btn--danger {
+  background: rgba(255,51,51,0.10) !important;
+  border: 1px solid rgba(255,51,51,0.50) !important;
+  color: #ff4444 !important;
+  border-radius: 0 !important;
+  text-shadow: 0 0 6px rgba(255,51,51,0.50) !important;
+}
+
+[data-theme="terminal"] .btn--success {
+  background: rgba(0,255,65,0.12) !important;
+  border: 1px solid rgba(0,255,65,0.50) !important;
+  color: #00ff41 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] .btn {
+  border-radius: 0 !important;
+}
+
+/* ── Badges ── */
+[data-theme="terminal"] .badge {
+  border-radius: 0 !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.65rem !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+}
+
+[data-theme="terminal"] .badge--success  { background: rgba(0,255,65,0.10) !important; color: #00ff41 !important; border-color: rgba(0,255,65,0.30) !important; }
+[data-theme="terminal"] .badge--warning  { background: rgba(255,179,0,0.10) !important; color: #ffb300 !important; border-color: rgba(255,179,0,0.30) !important; }
+[data-theme="terminal"] .badge--danger   { background: rgba(255,51,51,0.10) !important; color: #ff4444 !important; border-color: rgba(255,51,51,0.30) !important; }
+[data-theme="terminal"] .badge--info     { background: rgba(0,170,255,0.10) !important; color: #00ccff !important; border-color: rgba(0,170,255,0.30) !important; }
+[data-theme="terminal"] .badge--neutral  { background: rgba(0,255,65,0.06) !important; color: rgba(0,255,65,0.70) !important; border-color: rgba(0,255,65,0.20) !important; }
+
+/* ── Tables ── */
+[data-theme="terminal"] .table {
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] .table th {
+  background: rgba(0,255,65,0.06) !important;
+  color: rgba(0,255,65,0.60) !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.65rem !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(0,255,65,0.20) !important;
+}
+
+[data-theme="terminal"] .table td {
+  color: rgba(0,255,65,0.75) !important;
+  border-bottom: 1px solid rgba(0,255,65,0.08) !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.80rem !important;
+}
+
+[data-theme="terminal"] .table tr:hover td {
+  background: rgba(0,255,65,0.05) !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 4px rgba(0,255,65,0.30) !important;
+}
+
+/* ── Form inputs ── */
+[data-theme="terminal"] input,
+[data-theme="terminal"] select,
+[data-theme="terminal"] textarea {
+  background: rgba(0,12,0,0.90) !important;
+  border: 1px solid rgba(0,255,65,0.28) !important;
+  border-radius: 0 !important;
+  color: #00ff41 !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.82rem !important;
+  caret-color: #00ff41 !important;
+}
+
+[data-theme="terminal"] input:focus,
+[data-theme="terminal"] select:focus,
+[data-theme="terminal"] textarea:focus {
+  border-color: rgba(0,255,65,0.60) !important;
+  box-shadow: 0 0 0 2px rgba(0,255,65,0.12), 0 0 12px rgba(0,255,65,0.15) !important;
+  outline: none !important;
+}
+
+[data-theme="terminal"] input::placeholder {
+  color: rgba(0,255,65,0.28) !important;
+}
+
+[data-theme="terminal"] label,
+[data-theme="terminal"] .form-label {
+  color: rgba(0,255,65,0.60) !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── Headings ── */
+[data-theme="terminal"] h1, [data-theme="terminal"] h2, [data-theme="terminal"] h3 {
+  font-family: 'VT323', monospace !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px rgba(0,255,65,0.50) !important;
+  letter-spacing: 0.08em !important;
+}
+
+[data-theme="terminal"] h4, [data-theme="terminal"] h5, [data-theme="terminal"] h6 {
+  font-family: 'Share Tech Mono', monospace !important;
+  color: rgba(0,255,65,0.80) !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── Section heading ── */
+[data-theme="terminal"] .section-heading {
+  font-family: 'VT323', monospace !important;
+  font-size: 1.6rem !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px rgba(0,255,65,0.50) !important;
+  letter-spacing: 0.10em !important;
+}
+
+[data-theme="terminal"] .section-heading::after {
+  background: linear-gradient(90deg, rgba(0,255,65,0.50), transparent) !important;
+}
+
+/* ── Progress bar ── */
+[data-theme="terminal"] .progress-bar {
+  border-radius: 0 !important;
+  background: rgba(0,255,65,0.08) !important;
+  border: 1px solid rgba(0,255,65,0.20) !important;
+}
+
+[data-theme="terminal"] .progress-bar__fill {
+  background: #00ff41 !important;
+  box-shadow: 0 0 8px rgba(0,255,65,0.60) !important;
+  border-radius: 0 !important;
+}
+
+/* ── Pstat ── */
+[data-theme="terminal"] .pstat {
+  background: rgba(0,12,0,0.95) !important;
+  border: 1px solid rgba(0,255,65,0.20) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] .pstat-val {
+  font-family: 'VT323', monospace !important;
+  font-size: 2rem !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 8px rgba(0,255,65,0.50) !important;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+}
+
+/* ── Blood chips ── */
+[data-theme="terminal"] .blood-chip {
+  border-radius: 0 !important;
+  border-color: rgba(0,255,65,0.28) !important;
+  background: rgba(0,255,65,0.05) !important;
+}
+
+[data-theme="terminal"] .blood-chip .type {
+  font-family: 'VT323', monospace !important;
+  font-size: 1.1rem !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 6px rgba(0,255,65,0.50) !important;
+}
+
+/* ── Settings panel ── */
+[data-theme="terminal"] .settings-panel {
+  background: rgba(0,8,0,0.98) !important;
+  border-left: 1px solid rgba(0,255,65,0.22) !important;
+  backdrop-filter: none !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] .settings-panel-hdr {
+  border-bottom: 1px solid rgba(0,255,65,0.20) !important;
+}
+
+[data-theme="terminal"] .settings-section-title {
+  color: rgba(0,255,65,0.40) !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0.60rem !important;
+  letter-spacing: 0.20em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── Chat ── */
+[data-theme="terminal"] .chat-fab {
+  background: rgba(0,255,65,0.12) !important;
+  border: 1px solid rgba(0,255,65,0.40) !important;
+  box-shadow: 0 0 16px rgba(0,255,65,0.30) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] .chat-window {
+  background: rgba(0,10,0,0.97) !important;
+  border: 1px solid rgba(0,255,65,0.28) !important;
+  border-radius: 0 !important;
+}
+
+/* ── Notif badge ── */
+[data-theme="terminal"] .notif-badge {
+  background: #ff4444 !important;
+  box-shadow: 0 0 8px rgba(255,51,51,0.60) !important;
+}
+
+/* ── Scrollbar ── */
+[data-theme="terminal"] ::-webkit-scrollbar-thumb {
+  background: rgba(0,255,65,0.25) !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="terminal"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,255,65,0.45) !important;
+}
+
+[data-theme="terminal"] ::-webkit-scrollbar-track {
+  background: rgba(0,8,0,0.80) !important;
+}
+
+/* ── Selection ── */
+[data-theme="terminal"] ::selection {
+  background: rgba(0,255,65,0.25) !important;
+  color: #00ff41 !important;
+}
+
+/* ── Entrance animation ── */
+[data-theme="terminal"] .card,
+[data-theme="terminal"] .stat-card {
+  animation: terminalDraw 0.35s steps(8, end) both !important;
+}
+
+@keyframes terminalDraw {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); }
+  to   { opacity: 1; clip-path: inset(0 0% 0 0); }
+}
+
+/* ── Cursor blinking effect on brand name ── */
+[data-theme="terminal"] .sidebar-brand-name::after {
+  content: '_' !important;
+  animation: cursorBlink 1s step-end infinite !important;
+  color: #00ff41 !important;
+}

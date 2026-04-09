@@ -1,0 +1,539 @@
+/* ============================================================
+   LIFEFLOW — THEME 4: BENTO GRID
+   Modular card layout · SaaS-grade density · Asymmetric tiles
+   Bold crimson accents on structured dark grid system
+
+   HOW TO USE:
+   In base.html, add AFTER all other CSS links:
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-bento.css') }}">
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Onest:wght@300;400;500;600;700&display=swap');
+
+/* Fallback if Cabinet Grotesk unavailable */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Onest:wght@300;400;500;600;700&display=swap');
+
+/* ══════════════════════════════════════════
+   OVERRIDE VARIABLES
+══════════════════════════════════════════ */
+:root {
+    --font-display:   'Plus Jakarta Sans', sans-serif;
+    --font-body:      'Onest', sans-serif;
+
+    --bg-dark:        #0E0E10;
+    --bg-base:        #111114;
+    --bg-card:        #161618;
+    --bg-elevated:    #1E1E22;
+    --bg-hover:       #242428;
+    --bg-overlay:     rgba(14, 14, 16, 0.94);
+
+    --bg-tile-1:      #1A1A1E;  /* standard tile */
+    --bg-tile-2:      #161618;  /* recessed tile */
+    --bg-tile-accent: rgba(192, 21, 42, 0.08); /* accent tile */
+
+    --border:         rgba(255, 255, 255, 0.07);
+    --border-soft:    rgba(255, 255, 255, 0.035);
+    --border-accent:  rgba(192, 21, 42, 0.28);
+    --border-strong:  rgba(255, 255, 255, 0.12);
+
+    --text-primary:   #F4F4F6;
+    --text-secondary: #8A8A9C;
+    --text-muted:     #52525E;
+
+    --crimson:        #C0152A;
+    --crimson-light:  #E8192F;
+    --crimson-glow:   rgba(192, 21, 42, 0.14);
+
+    --radius-sm:      8px;
+    --radius:         12px;
+    --radius-md:      14px;
+    --radius-lg:      18px;
+    --radius-xl:      22px;
+    --radius-full:    9999px;
+    --radius-card:    16px;
+
+    --bento-gap:      12px;
+    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ══════════════════════════════════════════
+   BODY
+══════════════════════════════════════════ */
+body {
+    background: var(--bg-dark) !important;
+    font-family: var(--font-body) !important;
+}
+
+body::before {
+    background:
+        radial-gradient(ellipse 70% 45% at 15% 0%, rgba(192, 21, 42, 0.09) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 35% at 85% 90%, rgba(139, 14, 30, 0.07) 0%, transparent 55%) !important;
+}
+
+/* ══════════════════════════════════════════
+   NAVBAR — BENTO BAR
+══════════════════════════════════════════ */
+.navbar {
+    background: rgba(14, 14, 16, 0.95) !important;
+    backdrop-filter: blur(24px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04) !important;
+    height: 62px !important;
+    padding: 0 2rem !important;
+}
+
+.nav-brand-icon {
+    background: linear-gradient(145deg, #C0152A 0%, #8B0E1E 100%) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 12px rgba(192, 21, 42, 0.35) !important;
+}
+
+.nav-brand-name {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.04em !important;
+}
+
+.nav-role-badge {
+    background: rgba(192, 21, 42, 0.12) !important;
+    border: 1px solid rgba(192, 21, 42, 0.25) !important;
+    border-radius: 8px !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+}
+
+/* ══════════════════════════════════════════
+   CARDS — BENTO TILES
+══════════════════════════════════════════ */
+.card {
+    background: var(--bg-tile-1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.065) !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+    transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition) !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        rgba(192, 21, 42, 0.5) 0%,
+        rgba(232, 25, 47, 0.3) 50%,
+        transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.card:hover {
+    border-color: rgba(255, 255, 255, 0.11) !important;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.06) !important;
+    transform: translateY(-2px) !important;
+}
+.card:hover::before { opacity: 1; }
+
+.card--accent {
+    background: var(--bg-tile-accent) !important;
+    border-color: rgba(192, 21, 42, 0.20) !important;
+}
+
+.card-header {
+    padding: 1.1rem 1.4rem !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    background: rgba(0,0,0,0.10) !important;
+}
+
+.card-title {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+    color: var(--text-primary) !important;
+}
+
+.card-title-icon {
+    background: rgba(192, 21, 42, 0.12) !important;
+    border: 1px solid rgba(192, 21, 42, 0.22) !important;
+    border-radius: 8px !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+}
+
+/* ══════════════════════════════════════════
+   STAT CARDS — BENTO
+══════════════════════════════════════════ */
+.stat-card {
+    background: var(--bg-tile-1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.065) !important;
+    border-radius: 14px !important;
+    padding: 1.3rem 1.4rem !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+    transition: all var(--transition) !important;
+}
+
+.stat-card::before {
+    height: 2px !important;
+    background: linear-gradient(90deg, rgba(192,21,42,0.7), rgba(192,21,42,0.2), transparent) !important;
+}
+
+.stat-card:hover {
+    border-color: rgba(192, 21, 42, 0.25) !important;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.3) !important;
+    transform: translateY(-3px) !important;
+    background: #1A1A1E !important;
+}
+
+.stat-card__label {
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.10em !important;
+    color: var(--text-muted) !important;
+    text-transform: uppercase !important;
+    font-family: 'Onest', sans-serif !important;
+}
+
+.stat-card__value {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+    line-height: 1.1 !important;
+}
+
+/* ══════════════════════════════════════════
+   PROFILE CARD — BENTO HERO TILE
+══════════════════════════════════════════ */
+.profile-card {
+    background: var(--bg-tile-1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25) !important;
+    overflow: hidden !important;
+}
+
+.profile-card__bg {
+    background: linear-gradient(145deg,
+        rgba(192, 21, 42, 0.14) 0%,
+        rgba(139, 14, 30, 0.07) 35%,
+        transparent 65%) !important;
+}
+
+/* ══════════════════════════════════════════
+   PROFILE ACTION BUTTONS — BENTO CHIPS
+══════════════════════════════════════════ */
+.profile-action-btn {
+    background: var(--bg-elevated) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 10px !important;
+    font-family: 'Onest', sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 0.78rem !important;
+    letter-spacing: -0.01em !important;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    padding: 8px 14px !important;
+}
+.profile-action-btn:hover {
+    background: rgba(192, 21, 42, 0.12) !important;
+    border-color: rgba(192, 21, 42, 0.30) !important;
+    color: var(--crimson-light) !important;
+    transform: scale(1.04) !important;
+    box-shadow: 0 4px 14px rgba(192, 21, 42, 0.15) !important;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS — BENTO
+══════════════════════════════════════════ */
+.btn {
+    font-family: 'Onest', sans-serif !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    letter-spacing: -0.01em !important;
+}
+
+.btn--primary {
+    background: var(--crimson) !important;
+    border-color: var(--crimson) !important;
+    box-shadow: 0 3px 14px rgba(192, 21, 42, 0.35) !important;
+}
+.btn--primary:hover {
+    background: var(--crimson-light) !important;
+    box-shadow: 0 6px 20px rgba(232, 25, 47, 0.45) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn--secondary {
+    background: var(--bg-elevated) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 10px !important;
+}
+.btn--secondary:hover {
+    background: var(--bg-hover) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+}
+
+.btn--sm { border-radius: 8px !important; }
+.btn--success { border-radius: 8px !important; }
+.btn--danger { border-radius: 8px !important; }
+
+/* ══════════════════════════════════════════
+   INPUTS — BENTO
+══════════════════════════════════════════ */
+.form-input, .form-select,
+input[type="text"], input[type="email"],
+input[type="password"], input[type="number"], select {
+    background: var(--bg-elevated) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 10px !important;
+    font-family: 'Onest', sans-serif !important;
+    font-size: 0.9rem !important;
+}
+.form-input:focus, select:focus, input:focus {
+    border-color: rgba(192, 21, 42, 0.50) !important;
+    box-shadow: 0 0 0 3px rgba(192, 21, 42, 0.10) !important;
+    background: var(--bg-hover) !important;
+}
+
+.form-label {
+    font-family: 'Onest', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.06em !important;
+}
+
+/* ══════════════════════════════════════════
+   TABLE — BENTO
+══════════════════════════════════════════ */
+.table-wrap {
+    border-radius: 0 0 14px 14px !important;
+    overflow: hidden !important;
+}
+.table thead th {
+    background: rgba(0,0,0,0.12) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+    font-family: 'Onest', sans-serif !important;
+    font-size: 0.67rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.10em !important;
+    padding: 11px 16px !important;
+}
+.table tbody td {
+    border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+    font-family: 'Onest', sans-serif !important;
+    font-size: 0.85rem !important;
+}
+.table tbody tr:last-child td { border-bottom: none !important; }
+.table tbody tr:hover td {
+    background: rgba(192, 21, 42, 0.04) !important;
+}
+
+/* ══════════════════════════════════════════
+   BLOOD BADGE — BENTO
+══════════════════════════════════════════ */
+.blood-badge {
+    background: rgba(192, 21, 42, 0.10) !important;
+    border: 1px solid rgba(192, 21, 42, 0.25) !important;
+    color: var(--crimson-light) !important;
+    border-radius: 8px !important;
+    font-family: 'Onest', sans-serif !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+}
+.blood-badge--sm {
+    background: rgba(192, 21, 42, 0.10) !important;
+    border: 1px solid rgba(192, 21, 42, 0.22) !important;
+    color: var(--crimson-light) !important;
+    border-radius: 6px !important;
+    font-family: 'Onest', sans-serif !important;
+}
+
+/* ══════════════════════════════════════════
+   BADGES — BENTO CHIPS
+══════════════════════════════════════════ */
+.badge {
+    font-family: 'Onest', sans-serif !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+}
+.badge-critical {
+    background: rgba(232,25,47,0.10) !important;
+    border: 1px solid rgba(232,25,47,0.28) !important;
+    color: #F04050 !important;
+    border-radius: 8px !important;
+    padding: 3px 10px !important;
+    font-family: 'Onest', sans-serif !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+}
+.badge-urgent {
+    background: rgba(245,158,11,0.10) !important;
+    border: 1px solid rgba(245,158,11,0.28) !important;
+    color: #F5A623 !important;
+    border-radius: 8px !important;
+    padding: 3px 10px !important;
+    font-family: 'Onest', sans-serif !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+}
+.badge-normal {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.09) !important;
+    color: var(--text-muted) !important;
+    border-radius: 8px !important;
+    padding: 3px 10px !important;
+}
+
+/* ══════════════════════════════════════════
+   PROGRESS BAR — BENTO
+══════════════════════════════════════════ */
+.progress-bar {
+    background: rgba(255,255,255,0.06) !important;
+    border-radius: 999px !important;
+    height: 5px !important;
+}
+.progress-bar__fill {
+    border-radius: 999px !important;
+}
+
+/* ══════════════════════════════════════════
+   NAV DROPDOWN — BENTO
+══════════════════════════════════════════ */
+.nav-drop {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) !important;
+    padding: 6px !important;
+}
+.nav-drop__link {
+    font-family: 'Onest', sans-serif !important;
+    font-size: 0.83rem !important;
+    font-weight: 500 !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    margin: 1px 0 !important;
+}
+.nav-drop__link:hover {
+    background: rgba(192, 21, 42, 0.10) !important;
+    color: var(--crimson-light) !important;
+}
+.nav-drop__divider {
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    margin: 4px 8px !important;
+}
+
+/* ══════════════════════════════════════════
+   SETTINGS PANEL — BENTO
+══════════════════════════════════════════ */
+.settings-panel {
+    border-radius: 20px 0 0 20px !important;
+    border-left: 1px solid rgba(255,255,255,0.07) !important;
+}
+
+/* ══════════════════════════════════════════
+   NOTIFICATION DROPDOWN — BENTO
+══════════════════════════════════════════ */
+.notif-dropdown {
+    border-radius: 16px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5) !important;
+}
+.notif-item {
+    border-radius: 10px !important;
+}
+
+/* ══════════════════════════════════════════
+   ENTRANCE ANIMATIONS — BENTO POP
+══════════════════════════════════════════ */
+@keyframes bentoSlideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes bentoPop {
+    0%   { opacity: 0; transform: scale(0.92); }
+    60%  { transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.page-section.active .card {
+    animation: bentoSlideUp 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.page-section.active .card:nth-child(2) { animation-delay: 0.07s; }
+.page-section.active .card:nth-child(3) { animation-delay: 0.14s; }
+.page-section.active .card:nth-child(4) { animation-delay: 0.21s; }
+
+.page-section.active .stat-card {
+    animation: bentoPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.page-section.active .stat-card:nth-child(1) { animation-delay: 0.04s; }
+.page-section.active .stat-card:nth-child(2) { animation-delay: 0.10s; }
+.page-section.active .stat-card:nth-child(3) { animation-delay: 0.16s; }
+.page-section.active .stat-card:nth-child(4) { animation-delay: 0.22s; }
+
+/* ══════════════════════════════════════════
+   AUTH — BENTO
+══════════════════════════════════════════ */
+.auth-form-side {
+    background: var(--bg-dark) !important;
+}
+.auth-form-wrap {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255,255,255,0.07) !important;
+    border-radius: 20px !important;
+    padding: 2.5rem !important;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3) !important;
+}
+.auth-form-title {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 1.8rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.04em !important;
+}
+.register-card {
+    background: var(--bg-card) !important;
+    border: 1px solid rgba(255,255,255,0.07) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3) !important;
+}
+
+/* ══════════════════════════════════════════
+   ALERT BANNER — BENTO
+══════════════════════════════════════════ */
+.alert-banner {
+    background: rgba(192, 21, 42, 0.07) !important;
+    border: 1px solid rgba(192, 21, 42, 0.20) !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+/* ══════════════════════════════════════════
+   TYPOGRAPHY
+══════════════════════════════════════════ */
+h1, h2, h3, h4, h5, h6,
+.card-title, .nav-brand-name,
+.auth-form-title, .auth-panel__headline {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    letter-spacing: -0.03em !important;
+    text-transform: none !important;
+}
+body, p, .form-label, .btn, td, th,
+.form-input, .form-select, input, select,
+.badge, .nav-drop__link {
+    font-family: 'Onest', sans-serif !important;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); border-radius: 999px; }
+::-webkit-scrollbar-thumb {
+    background: rgba(192, 21, 42, 0.25);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(192, 21, 42, 0.45);
+}

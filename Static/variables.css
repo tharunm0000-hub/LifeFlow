@@ -1,0 +1,99 @@
+/* ============================================================
+   LIFEFLOW BLOOD BANK — CSS VARIABLES & DESIGN TOKENS
+   variables.css
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* ── Brand Colours ── */
+    --crimson:        #C0152A;
+    --crimson-deep:   #8B0E1E;
+    --crimson-light:  #E8192F;
+    --crimson-pale:   #FF4D5E;
+    --crimson-glow:   rgba(192, 21, 42, 0.15);
+    --crimson-subtle: rgba(192, 21, 42, 0.08);
+
+    /* ── Background Scale ── */
+    --bg-dark:        #0D0D0F;
+    --bg-base:        #101013;
+    --bg-card:        #141418;
+    --bg-elevated:    #1C1C22;
+    --bg-hover:       #22222A;
+    --bg-overlay:     rgba(13, 13, 15, 0.92);
+
+    /* ── Borders ── */
+    --border:         rgba(255, 255, 255, 0.07);
+    --border-soft:    rgba(255, 255, 255, 0.04);
+    --border-accent:  rgba(192, 21, 42, 0.30);
+    --border-strong:  rgba(255, 255, 255, 0.14);
+
+    /* ── Text ── */
+    --text-primary:   #F2F2F5;
+    --text-secondary: #9090A0;
+    --text-muted:     #5A5A6A;
+    --text-disabled:  #3A3A46;
+
+    /* ── Semantic ── */
+    --success:        #1DB870;
+    --success-bg:     rgba(29, 184, 112, 0.10);
+    --success-border: rgba(29, 184, 112, 0.25);
+
+    --warning:        #F59E0B;
+    --warning-bg:     rgba(245, 158, 11, 0.10);
+    --warning-border: rgba(245, 158, 11, 0.25);
+
+    --error:          #E8192F;
+    --error-bg:       rgba(232, 25, 47, 0.10);
+    --error-border:   rgba(232, 25, 47, 0.25);
+
+    --info:           #3B9FE8;
+    --info-bg:        rgba(59, 159, 232, 0.10);
+
+    /* ── Typography ── */
+    --font-display:   'Playfair Display', Georgia, serif;
+    --font-body:      'DM Sans', system-ui, sans-serif;
+    --font-mono:      'Courier New', Courier, monospace;
+
+    /* ── Sizing & Spacing ── */
+    --radius-sm:      6px;
+    --radius:         10px;
+    --radius-md:      12px;
+    --radius-lg:      16px;
+    --radius-xl:      20px;
+    --radius-full:    9999px;
+
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  20px;
+    --space-6:  24px;
+    --space-8:  32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    /* ── Shadows ── */
+    --shadow-sm:         0 2px 8px rgba(0, 0, 0, 0.25);
+    --shadow:            0 4px 24px rgba(0, 0, 0, 0.40);
+    --shadow-lg:         0 8px 48px rgba(0, 0, 0, 0.55);
+    --shadow-crimson:    0 4px 32px rgba(192, 21, 42, 0.25);
+    --shadow-crimson-lg: 0 8px 48px rgba(192, 21, 42, 0.35);
+
+    /* ── Transitions ── */
+    --transition-fast:  0.15s ease;
+    --transition:       0.20s ease;
+    --transition-slow:  0.35s ease;
+    /* Shorthand aliases — used in register.html inline styles */
+    --t:                0.20s;
+    --ease:             ease;
+    --r-md:             12px; /* alias for --radius-md */
+
+    /* ── Z-index Scale ── */
+    --z-base:     1;
+    --z-dropdown: 50;
+    --z-sticky:   100;
+    --z-modal:    200;
+    --z-toast:    300;
+}

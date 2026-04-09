@@ -1,0 +1,434 @@
+/* ============================================================
+   LIFEFLOW — THEME: OBSIDIAN
+   Deep volcanic charcoal · Liquid gold · Editorial luxury
+   Fonts: Cormorant Garamond (display) + Cabinet Grotesk (body)
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap');
+
+[data-theme="obsidian"] {
+  --gold:        #c9a96e;
+  --gold-light:  #e2c98a;
+  --gold-deep:   #9d7a42;
+  --gold-pale:   rgba(201,169,110,0.10);
+  --obsidian:    #0e0e0f;
+  --charcoal:    #1a1a1c;
+
+  --blood:         #c9a96e;
+  --blood-mid:     #b8903c;
+  --blood-light:   #e2c98a;
+  --blood-pale:    rgba(201,169,110,0.10);
+  --blood-paler:   rgba(201,169,110,0.05);
+  --blood-border:  rgba(201,169,110,0.20);
+  --blood-glow:    rgba(201,169,110,0.15);
+
+  --bg:            #0b0b0c;
+  --bg-2:          #0e0e0f;
+  --surface:       #141415;
+  --surface-2:     #1a1a1c;
+  --surface-3:     #202022;
+  --surface-4:     #2a2a2d;
+
+  --border:        rgba(201,169,110,0.12);
+  --border-2:      rgba(201,169,110,0.22);
+  --border-accent: rgba(201,169,110,0.28);
+
+  --ink:           #f5f0e8;
+  --ink-2:         #d8cfc0;
+  --ink-3:         #9a9080;
+  --ink-4:         #666055;
+  --ink-5:         #3d3830;
+
+  --green:        #4a9e6b; --green-bg: rgba(74,158,107,0.10); --green-border: rgba(74,158,107,0.22); --green-text: #6cbd8a;
+  --amber:        #c9a96e; --amber-bg: rgba(201,169,110,0.10); --amber-border: rgba(201,169,110,0.22); --amber-text: #e2c98a;
+  --rose:         #c96e6e; --rose-bg:  rgba(201,110,110,0.10); --rose-border:  rgba(201,110,110,0.22); --rose-text:  #e28a8a;
+  --sky:          #6e9ec9; --sky-bg:   rgba(110,158,201,0.10); --sky-border:   rgba(110,158,201,0.22); --sky-text:   #8ab9e2;
+
+  --font:         'Cabinet Grotesk', 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-mono:    'DM Mono', monospace;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.50);
+  --shadow:    0 4px 24px rgba(0,0,0,0.60), 0 1px 0 rgba(201,169,110,0.06);
+  --shadow-lg: 0 16px 60px rgba(0,0,0,0.70), 0 1px 0 rgba(201,169,110,0.08);
+  --shadow-blood: 0 4px 32px rgba(201,169,110,0.25);
+}
+
+/* ── Base ── */
+[data-theme="obsidian"] body {
+  background: #0b0b0c !important;
+  font-family: 'Cabinet Grotesk', 'DM Sans', system-ui, sans-serif !important;
+  color: #f5f0e8 !important;
+}
+
+[data-theme="obsidian"] body::before {
+  content: '' !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  background:
+    radial-gradient(ellipse 80% 50% at 15% 0%, rgba(201,169,110,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 85% 100%, rgba(201,169,110,0.05) 0%, transparent 50%) !important;
+  pointer-events: none !important;
+}
+
+[data-theme="obsidian"] .app-shell,
+[data-theme="obsidian"] .main-content,
+[data-theme="obsidian"] .sidebar {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* ── Sidebar ── */
+[data-theme="obsidian"] .sidebar {
+  background: #0e0e0f !important;
+  border-right: 1px solid rgba(201,169,110,0.12) !important;
+}
+
+[data-theme="obsidian"] .sidebar-brand {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(201,169,110,0.12) !important;
+}
+
+[data-theme="obsidian"] .sidebar-brand-name {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-weight: 600 !important;
+  font-style: italic !important;
+  font-size: 1.35rem !important;
+  color: #e2c98a !important;
+  letter-spacing: 0.04em !important;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+}
+
+[data-theme="obsidian"] .sidebar-brand-drop {
+  filter: sepia(1) saturate(2) hue-rotate(20deg) !important;
+}
+
+[data-theme="obsidian"] .sidebar-nav-link {
+  color: #666055 !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.01em !important;
+  border-radius: 2px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="obsidian"] .sidebar-nav-link:hover,
+[data-theme="obsidian"] .sidebar-nav-link.active {
+  background: rgba(201,169,110,0.08) !important;
+  color: #e2c98a !important;
+  border-left: 2px solid #c9a96e !important;
+}
+
+[data-theme="obsidian"] .sidebar-nav-label {
+  color: rgba(201,169,110,0.40) !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.58rem !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+}
+
+[data-theme="obsidian"] .sidebar-avatar {
+  background: linear-gradient(135deg, #9d7a42, #c9a96e) !important;
+  color: #0e0e0f !important;
+  font-family: 'Cormorant Garamond', serif !important;
+  font-weight: 700 !important;
+  font-style: italic !important;
+}
+
+[data-theme="obsidian"] .sidebar-user-name {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic !important;
+  color: #d8cfc0 !important;
+  font-size: 1rem !important;
+}
+
+[data-theme="obsidian"] .sidebar-user-role {
+  color: #c9a96e !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.6rem !important;
+  letter-spacing: 0.14em !important;
+}
+
+/* ── Topbar ── */
+[data-theme="obsidian"] .topbar {
+  background: rgba(14,14,15,0.95) !important;
+  border-bottom: 1px solid rgba(201,169,110,0.12) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+[data-theme="obsidian"] .topbar-title {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic !important;
+  font-size: 1.15rem !important;
+  color: #e2c98a !important;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+}
+
+/* ── Cards ── */
+[data-theme="obsidian"] .card {
+  background: #141415 !important;
+  border: 1px solid rgba(201,169,110,0.14) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.50) !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-theme="obsidian"] .card::before {
+  background: linear-gradient(90deg, transparent 0%, #c9a96e 40%, #e2c98a 60%, transparent 100%) !important;
+  height: 1px !important;
+  opacity: 0.60 !important;
+}
+
+[data-theme="obsidian"] .card:hover {
+  border-color: rgba(201,169,110,0.30) !important;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.60), 0 0 0 1px rgba(201,169,110,0.15) !important;
+}
+
+/* ── Stat cards ── */
+[data-theme="obsidian"] .stat-card {
+  background: #141415 !important;
+  border: 1px solid rgba(201,169,110,0.14) !important;
+}
+
+[data-theme="obsidian"] .stat-card::before {
+  background: linear-gradient(90deg, transparent, #c9a96e, transparent) !important;
+  height: 1px !important;
+  opacity: 0.50 !important;
+}
+
+[data-theme="obsidian"] .stat-value {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic !important;
+  font-size: 2.2rem !important;
+  font-weight: 700 !important;
+  color: #e2c98a !important;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+}
+
+[data-theme="obsidian"] .stat-label {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #666055 !important;
+}
+
+/* ── Profile card ── */
+[data-theme="obsidian"] .profile-card {
+  background: #141415 !important;
+  border: 1px solid rgba(201,169,110,0.16) !important;
+}
+
+[data-theme="obsidian"] .profile-card::before {
+  background: linear-gradient(90deg, transparent, #c9a96e 30%, #e2c98a 50%, #c9a96e 70%, transparent) !important;
+  height: 1px !important;
+  opacity: 0.70 !important;
+}
+
+[data-theme="obsidian"] .profile-avatar {
+  background: linear-gradient(135deg, #9d7a42, #c9a96e) !important;
+  color: #0e0e0f !important;
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 2px #0b0b0c, 0 0 0 4px rgba(201,169,110,0.30), 0 8px 32px rgba(201,169,110,0.20) !important;
+}
+
+/* ── Buttons ── */
+[data-theme="obsidian"] .btn--primary {
+  background: linear-gradient(135deg, #9d7a42, #c9a96e) !important;
+  color: #0b0b0c !important;
+  border: none !important;
+  font-family: 'Cabinet Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  box-shadow: 0 4px 20px rgba(201,169,110,0.30) !important;
+}
+
+[data-theme="obsidian"] .btn--primary:hover {
+  background: linear-gradient(135deg, #b8903c, #e2c98a) !important;
+  box-shadow: 0 6px 28px rgba(201,169,110,0.50) !important;
+  transform: translateY(-1px) !important;
+}
+
+[data-theme="obsidian"] .btn--secondary {
+  background: transparent !important;
+  border: 1px solid rgba(201,169,110,0.30) !important;
+  color: #c9a96e !important;
+}
+
+[data-theme="obsidian"] .btn--secondary:hover {
+  background: rgba(201,169,110,0.08) !important;
+  border-color: rgba(201,169,110,0.50) !important;
+}
+
+[data-theme="obsidian"] .btn--ghost {
+  color: #9a9080 !important;
+}
+
+[data-theme="obsidian"] .btn--ghost:hover {
+  color: #c9a96e !important;
+  background: rgba(201,169,110,0.06) !important;
+}
+
+/* ── Badges ── */
+[data-theme="obsidian"] .badge--success  { background: rgba(74,158,107,0.12) !important; color: #6cbd8a !important; border-color: rgba(74,158,107,0.22) !important; }
+[data-theme="obsidian"] .badge--warning  { background: rgba(201,169,110,0.12) !important; color: #e2c98a !important; border-color: rgba(201,169,110,0.22) !important; }
+[data-theme="obsidian"] .badge--danger   { background: rgba(201,110,110,0.12) !important; color: #e28a8a !important; border-color: rgba(201,110,110,0.22) !important; }
+[data-theme="obsidian"] .badge--info     { background: rgba(110,158,201,0.12) !important; color: #8ab9e2 !important; border-color: rgba(110,158,201,0.22) !important; }
+
+/* ── Tables ── */
+[data-theme="obsidian"] .table th {
+  background: rgba(201,169,110,0.05) !important;
+  color: rgba(201,169,110,0.60) !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.62rem !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(201,169,110,0.15) !important;
+}
+
+[data-theme="obsidian"] .table td {
+  color: #9a9080 !important;
+  border-bottom: 1px solid rgba(201,169,110,0.07) !important;
+}
+
+[data-theme="obsidian"] .table tr:hover td {
+  background: rgba(201,169,110,0.04) !important;
+  color: #d8cfc0 !important;
+}
+
+/* ── Form inputs ── */
+[data-theme="obsidian"] input,
+[data-theme="obsidian"] select,
+[data-theme="obsidian"] textarea {
+  background: #1a1a1c !important;
+  border: 1px solid rgba(201,169,110,0.18) !important;
+  color: #f5f0e8 !important;
+  font-family: 'Cabinet Grotesk', sans-serif !important;
+}
+
+[data-theme="obsidian"] input:focus,
+[data-theme="obsidian"] select:focus,
+[data-theme="obsidian"] textarea:focus {
+  border-color: rgba(201,169,110,0.50) !important;
+  box-shadow: 0 0 0 3px rgba(201,169,110,0.08) !important;
+  outline: none !important;
+}
+
+/* ── Headings ── */
+[data-theme="obsidian"] h1, [data-theme="obsidian"] h2, [data-theme="obsidian"] h3 {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic !important;
+  color: #f5f0e8 !important;
+}
+
+[data-theme="obsidian"] h4, [data-theme="obsidian"] h5, [data-theme="obsidian"] h6 {
+  font-family: 'Cabinet Grotesk', sans-serif !important;
+  color: #d8cfc0 !important;
+}
+
+/* ── Section heading ── */
+[data-theme="obsidian"] .section-heading {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic !important;
+  font-size: 1.4rem !important;
+  color: #f5f0e8 !important;
+}
+
+[data-theme="obsidian"] .section-heading::after {
+  background: linear-gradient(90deg, rgba(201,169,110,0.60), transparent) !important;
+}
+
+/* ── Progress bar ── */
+[data-theme="obsidian"] .progress-bar__fill {
+  background: linear-gradient(90deg, #9d7a42, #c9a96e, #e2c98a) !important;
+}
+
+/* ── Pstat ── */
+[data-theme="obsidian"] .pstat {
+  background: #141415 !important;
+  border: 1px solid rgba(201,169,110,0.12) !important;
+}
+
+[data-theme="obsidian"] .pstat::before {
+  background: linear-gradient(90deg, transparent, #c9a96e, transparent) !important;
+  height: 1px !important;
+  opacity: 0.50 !important;
+}
+
+[data-theme="obsidian"] .pstat-val {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic !important;
+  color: #e2c98a !important;
+  -webkit-text-fill-color: initial !important;
+  background: none !important;
+}
+
+/* ── Settings panel ── */
+[data-theme="obsidian"] .settings-panel {
+  background: #0e0e0f !important;
+  border-left: 1px solid rgba(201,169,110,0.15) !important;
+}
+
+[data-theme="obsidian"] .settings-panel-hdr {
+  border-bottom: 1px solid rgba(201,169,110,0.12) !important;
+}
+
+[data-theme="obsidian"] .settings-section-title {
+  color: rgba(201,169,110,0.45) !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 0.60rem !important;
+  letter-spacing: 0.18em !important;
+}
+
+/* ── Chat ── */
+[data-theme="obsidian"] .chat-fab {
+  background: linear-gradient(135deg, #9d7a42, #c9a96e) !important;
+  box-shadow: 0 4px 20px rgba(201,169,110,0.35) !important;
+}
+
+/* ── Scrollbar ── */
+[data-theme="obsidian"] ::-webkit-scrollbar-thumb {
+  background: rgba(201,169,110,0.25) !important;
+}
+
+[data-theme="obsidian"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(201,169,110,0.45) !important;
+}
+
+[data-theme="obsidian"] ::-webkit-scrollbar-track {
+  background: #0e0e0f !important;
+}
+
+/* ── Gold dividers ── */
+[data-theme="obsidian"] hr {
+  border: none !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(201,169,110,0.30), transparent) !important;
+}
+
+/* ── Entrance animation ── */
+[data-theme="obsidian"] .card,
+[data-theme="obsidian"] .stat-card {
+  animation: obsidianReveal 0.45s cubic-bezier(0.2,0,0,1) both !important;
+}
+
+@keyframes obsidianReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Decorative corner accent on profile card ── */
+[data-theme="obsidian"] .profile-card::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 80px !important;
+  height: 80px !important;
+  background: radial-gradient(circle at 100% 100%, rgba(201,169,110,0.12) 0%, transparent 70%) !important;
+  pointer-events: none !important;
+}
