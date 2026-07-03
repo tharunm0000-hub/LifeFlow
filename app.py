@@ -19,7 +19,24 @@ from reportlab.lib.units import cm
 from reportlab.platypus import (HRFlowable, Paragraph, SimpleDocTemplate,
                                  Spacer, Table, TableStyle)
 
-app = Flask(__name__)
+import os
+from flask import send_from_directory
+
+# 1. Get the absolute path
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# 2. Initialize Flask with absolute paths
+app = Flask(
+    __name__,
+    static_url_path='/static',
+    static_folder=os.path.join(basedir, 'static'),
+    template_folder=os.path.join(basedir, 'templates')
+)
+
+# 3. Force Vercel to serve the static files
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(app.static_folder, filename)
 app.secret_key = "super_secret_blood_bank_key"
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading") if HAS_SOCKETIO else None
 
