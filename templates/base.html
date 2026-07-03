@@ -653,7 +653,7 @@
         chv.style.transform  = open ? 'rotate(180deg)' : 'rotate(0deg)';
         if (open && !analyticsLoaded) loadSettingsAnalytics();
     }
-
+ 
     async function loadSettingsAnalytics() {
         try {
             const res  = await fetch('/api/analytics');
