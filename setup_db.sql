@@ -83,9 +83,8 @@ INSERT IGNORE INTO Blood_Inventory (blood_group, quantity_ml) VALUES
 
 -- Admin accounts
 INSERT IGNORE INTO Users (name, email, password_hash, role)
-VALUES ('tharun',    'admin1@bloodbank.com', 'admin123', 'Admin');
-INSERT IGNORE INTO Users (name, email, password_hash, role)
-VALUES ('tharunesh', 'admin2@bloodbank.com', 'admin456', 'Admin');
+VALUES ('tharun',    'tharunm@bloodbank.com', 'tharun123', 'Admin');
+
 
 -- ══ UPGRADE SCRIPT (run if you already have the old schema) ══
 ALTER TABLE Donors ADD COLUMN IF NOT EXISTS total_donations INT DEFAULT 0;
