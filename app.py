@@ -25,7 +25,13 @@ app = Flask(__name__)
 app.secret_key = "super_secret_blood_bank_key"
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading") if HAS_SOCKETIO else None
 
-db_config = {"host":"localhost","user":"root","password":"12345","database":"blood_bank_db"}
+db_config = {
+    "host": os.environ.get("DB_HOST", "localhost"),
+    "user": os.environ.get("DB_USER", "root"),
+    "password": os.environ.get("DB_PASSWORD", "12345"),
+    "database": os.environ.get("DB_NAME", "defaultdb"),
+    "port": int(os.environ.get("DB_PORT", 3306))
+}
 
 app.config.update(
     MAIL_SERVER="smtp.gmail.com", MAIL_PORT=587, MAIL_USE_TLS=True,
